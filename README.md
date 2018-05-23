@@ -466,3 +466,6 @@ cd $JBOSS/server/default/deployregweb/custodia.war
 
 =======
 >>>>>>> fde5dfcccfdc7727a95401aad6f30a5b15dc808b
+=======
+# ticmallorca
+>>>>>>> fde5dfcccfdc7727a95401aad6f30a5b15dc808b
