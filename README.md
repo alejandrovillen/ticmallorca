@@ -452,20 +452,3 @@ es.caib.regweb3.scan.plugin.3=
 sudo mkdir $JBOSS/server/default/deployregweb/custodia.war
 cd $JBOSS/server/default/deployregweb/custodia.war
 </pre>
-
-
-
-		
-		
-		
-		
-		
-		
-		
-
-
-=======
->>>>>>> fde5dfcccfdc7727a95401aad6f30a5b15dc808b
-=======
-# ticmallorca
->>>>>>> fde5dfcccfdc7727a95401aad6f30a5b15dc808b
