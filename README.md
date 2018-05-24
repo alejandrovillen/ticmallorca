@@ -1,4 +1,5 @@
 # TIC Mallorca
+<<<<<<< HEAD
 
 **Environment variables**
 
@@ -452,3 +453,5 @@ es.caib.regweb3.scan.plugin.3=
 sudo mkdir $JBOSS/server/default/deployregweb/custodia.war
 cd $JBOSS/server/default/deployregweb/custodia.war
 </pre>
+=======
+>>>>>>> a2429df33514a8d7f9539a91e463d4d22432352f
