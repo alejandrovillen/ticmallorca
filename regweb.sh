@@ -71,3 +71,13 @@
 		cp $TICPACK/App/regweb/build-testsuite.xml $JBOSS/tests/ant-import/
 	## Deploy folder
 		cp $TICPACK/App/regweb/profile.xml $JBOSS/server/default/conf/bootstrap/
+	## Public ports and upgrade memory size
+		cp $TICPACK/App/regweb/run.config $JBOSS/bin/
+	## MultiDatasources
+		cp $TICPACK/App/regweb/jbossts-properties.xml $JBOSS/server/default/conf/
+	## Auth Basic
+		cp $TICPACK/App/regweb/war-deployers-jboss-beans.xml $JBOSS/server/default/deployers/jbossweb.deployer/META-INF/
+	## Parameters Size
+		cp $TICPACK/App/regweb/properties-service.xml $JBOSS/server/default/deploy/
+
+
