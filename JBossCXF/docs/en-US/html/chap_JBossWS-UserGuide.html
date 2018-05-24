@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory">Chapter 2. JBossWS-UserGuide</title><link rel="stylesheet" href="css/jbossorg.css" type="text/css"/><meta xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" name="generator" content="DocBook XSL Stylesheets V1.72.0"/><link rel="start" href="index.html" title="JBossWS-CXF Guide"/><link rel="up" href="Main documentation.html" title="Part I. Main Documentation"/><link rel="prev" href="chap_JBossWS-QuickStart.html" title="Chapter 1. JBossWS-QuickStart"/><link rel="next" href="chap_JBossWS-StackCXFUserGuide.html" title="Chapter 3. JBossWS-StackCXFUserGuide"/></head><body><p id="title"><a href="http://www.jboss.org" class="site_href"><strong>JBoss.org</strong></a><a href="http://docs.jboss.org/" class="doc_href"><strong>Community Documentation</strong></a></p><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-QuickStart.html"><strong>Prev</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-StackCXFUserGuide.html"><strong>Next</strong></a></li></ul><div class="chapter" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="chap_JBossWS-UserGuide"/>Chapter 2. JBossWS-UserGuide</h2></div></div></div><div class="toc"><dl><dt><span class="section"><a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Common_User_Guide">2.1. Common User Guide</a></span></dt><dd><dl><dt><span class="section"><a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Web_Service_Concepts">2.1.1. Web Service Concepts</a></span></dt><dt><span class="section"><a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Web_Service_Endpoints">2.1.2. Web Service Endpoints</a></span></dt><dt><span class="section"><a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Web_Service_Clients">2.1.3. Web Service Clients</a></span></dt><dt><span class="section"><a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Common_API">2.1.4. Common API</a></span></dt><dt><span class="section"><a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Tools">2.1.5. Tools</a></span></dt><dt><span class="section"><a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Configuration">2.1.6. Configuration</a></span></dt></dl></dd></dl></div><p/><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-UserGuide_Common_User_Guide"/>2.1. Common User Guide</h2></div></div></div><p> </p><p>Here below is the documentation that applies to every supported stacks. This includes basic JAX-WS usage as well as references to common additional functionalities the JBossWS Web Service Framework provides on top of the supported stacks.</p><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-UserGuide_Web_Service_Concepts"/>2.1.1. Web Service Concepts</h3></div></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_DocumentLiteral"/>2.1.1.1. Document/Literal</h4></div></div></div><p>With document style web services two business partners agree on the exchange of complex business documents that are well defined in XML schema. For example, one party sends a document describing a purchase order, the other responds (immediately or later) with a document that describes the status of the purchase order. No need to agree on such low level details as operation names and their associated parameters.</p><p>The payload of the SOAP message is an XML document that can be validated against XML schema.</p><p>Document is defined by the style attribute on the SOAP binding.</p><pre class="screen"> &lt;binding name='EndpointInterfaceBinding' type='tns:EndpointInterface'&gt;
+  &lt;soap:binding style='document' transport='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/soap/http'/">http://schemas.xmlsoap.org/soap/http'/</a>&gt;
+  &lt;operation name='concat'&gt;
+   &lt;soap:operation soapAction=''/&gt;
+   &lt;input&gt;
+    &lt;soap:body use='literal'/&gt;
+   &lt;/input&gt;
+   &lt;output&gt;
+    &lt;soap:body use='literal'/&gt;
+   &lt;/output&gt;
+  &lt;/operation&gt;&lt;/binding&gt;
+</pre><p>With document style web services the payload of every message is defined by a complex type in XML schema.</p><pre class="screen">   &lt;complexType name='concatType'&gt;
+    &lt;sequence&gt;
+     &lt;element name='String_1' nillable='true' type='string'/&gt;
+     &lt;element name='long_1' type='long'/&gt;
+    &lt;/sequence&gt;
+   &lt;/complexType&gt;
+   &lt;element name='concat' type='tns:concatType'/&gt;
+</pre><p>Therefore, message parts <span class="bold"><strong>must</strong></span> refer to an <span class="bold"><strong>element</strong></span> from the schema.</p><pre class="screen"> &lt;message name='EndpointInterface_concat'&gt;
+  &lt;part name='parameters' element='tns:concat'/&gt;&lt;/message&gt;
+</pre><p>The following message definition <span class="bold"><strong>is invalid</strong></span>.</p><pre class="screen"> &lt;message name='EndpointInterface_concat'&gt;
+  &lt;part name='parameters' type='tns:concatType'/&gt;&lt;/message&gt;</pre><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_DocumentLiteral_Bare"/>2.1.1.1.1. Document/Literal (Bare)</h5></div></div></div><p>Bare is an implementation detail from the Java domain. Neither in the abstract contract (i.e. wsdl+schema) nor at the SOAP message level is a bare endpoint recognizable.</p><p>A bare endpoint or client uses a Java bean that represents the entire document payload.</p><pre class="screen">@WebService
+@SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> DocBareServiceImpl
+{
+   @WebMethod
+   <span class="bold"><strong>public</strong></span> SubmitBareResponse submitPO(SubmitBareRequest poRequest)
+   {
+      ...
+   }
+}
+</pre><p>The trick is that the Java beans representing the payload contain JAXB annotations that define how the payload is represented on the wire.</p><pre class="screen">@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "SubmitBareRequest", namespace="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://soapbinding.samples.jaxws.ws.test.jboss.org/">http://soapbinding.samples.jaxws.ws.test.jboss.org/</a>", propOrder = { "product" })
+@XmlRootElement(namespace="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://soapbinding.samples.jaxws.ws.test.jboss.org/">http://soapbinding.samples.jaxws.ws.test.jboss.org/</a>", name = "SubmitPO")
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> SubmitBareRequest
+{
+   @XmlElement(namespace="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://soapbinding.samples.jaxws.ws.test.jboss.org/">http://soapbinding.samples.jaxws.ws.test.jboss.org/</a>",  required = <span class="bold"><strong>true</strong></span>)
+   <span class="bold"><strong>private</strong></span> String product;
+   
+   ...
+}
+</pre></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_DocumentLiteral_Wrapped"/>2.1.1.1.2. Document/Literal (Wrapped)</h5></div></div></div><p>Wrapped is an implementation detail from the Java domain. Neither in the abstract contract (i.e. wsdl+schema) nor at the SOAP message level is a wrapped endpoint recognizable.</p><p>A wrapped endpoint or client uses the individual document payload properties. Wrapped is the default and does not have to be declared explicitly.</p><pre class="screen">@WebService
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> DocWrappedServiceImpl
+{
+   @WebMethod
+   @RequestWrapper (className="org.somepackage.SubmitPO")
+   @ResponseWrapper (className="org.somepackage.SubmitPOResponse")
+   <span class="bold"><strong>public</strong></span> String submitPO(String product, <span class="bold"><strong>int</strong></span> quantity)
+   {
+      ...
+   }
+}
+</pre><p>Note, that with JBossWS the request/response wrapper annotations are <span class="bold"><strong>not required</strong></span>, they will be generated on demand using sensible defaults.</p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_RPCLiteral"/>2.1.1.2. RPC/Literal</h4></div></div></div><p>With RPC there is a wrapper element that names the endpoint operation. Child elements of the RPC parent are the individual parameters.</p><p>The SOAP body is constructed based on some simple rules:</p><div class="itemizedlist"><ul><li><p> The port type operation name defines the endpoint method name </p></li><li><p> Message parts are endpoint method parameters </p></li></ul></div><p>RPC is defined by the style attribute on the SOAP binding.</p><pre class="screen"> &lt;binding name='EndpointInterfaceBinding' type='tns:EndpointInterface'&gt;
+  &lt;soap:binding style='rpc' transport='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/soap/http'/">http://schemas.xmlsoap.org/soap/http'/</a>&gt;
+  &lt;operation name='echo'&gt;
+   &lt;soap:operation soapAction=''/&gt;
+   &lt;input&gt;
+    &lt;soap:body namespace='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://org.jboss.ws/samples/jsr181pojo">http://org.jboss.ws/samples/jsr181pojo</a>' use='literal'/&gt;
+   &lt;/input&gt;
+   &lt;output&gt;
+    &lt;soap:body namespace='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://org.jboss.ws/samples/jsr181pojo">http://org.jboss.ws/samples/jsr181pojo</a>' use='literal'/&gt;
+   &lt;/output&gt;
+  &lt;/operation&gt;&lt;/binding&gt;
+</pre><p>With rpc style web services the portType names the operation (i.e. the java method on the endpoint)</p><pre class="screen"> &lt;portType name='EndpointInterface'&gt;
+  &lt;operation name='echo' parameterOrder='String_1'&gt;
+   &lt;input message='tns:EndpointInterface_echo'/&gt;
+   &lt;output message='tns:EndpointInterface_echoResponse'/&gt;
+  &lt;/operation&gt;&lt;/portType&gt;
+</pre><p>Operation parameters are defined by individual message parts.</p><pre class="screen"> &lt;message name='EndpointInterface_echo'&gt;
+  &lt;part name='String_1' type='xsd:string'/&gt;&lt;/message&gt;&lt;message name='EndpointInterface_echoResponse'&gt;
+  &lt;part name='result' type='xsd:string'/&gt;&lt;/message&gt;
+</pre><p>Note, there is no complex type in XML schema that could validate the entire SOAP message payload.</p><pre class="screen">@WebService
+@SOAPBinding(style = SOAPBinding.Style.RPC)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> JSEBean01
+{
+   @WebMethod
+   @WebResult(name="result")
+   <span class="bold"><strong>public</strong></span> String echo(@WebParam(name="String_1") String input)
+   {
+      ...
+   }
+}
+</pre><p>The element names of RPC parameters/return values may be defined using the JAX-WS <a href="chap_JBossWS-JAX-WSAnnotations.html" title="Chapter 16. JBossWS-JAX-WSAnnotations">WebParam</a> and <a href="chap_JBossWS-JAX-WSAnnotations.html" title="Chapter 16. JBossWS-JAX-WSAnnotations">WebResult</a> annotations respectively.</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_RPCEncoded"/>2.1.1.3. RPC/Encoded</h4></div></div></div><p>SOAP encodeding style is defined by the infamous <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383512">chapter 5</a> of the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/TR/2000/NOTE-SOAP-20000508">SOAP-1.1</a> specification. <span class="bold"><strong>It has inherent interoperability issues</strong></span> that cannot be fixed. The <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.ws-i.org/Profiles/BasicProfile-1.0-2004-04-16.html">Basic Profile-1.0</a> prohibits this encoding style in <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.ws-i.org/Profiles/BasicProfile-1.0-2004-04-16.html#refinement16448072">4.1.7 SOAP encodingStyle Attribute</a>.</p><p> JBossWS doesn't support rpc/encoded anymore.</p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-UserGuide_Web_Service_Endpoints"/>2.1.2. Web Service Endpoints</h3></div></div></div><p>JAX-WS simplifies the development model for a web service endpoint a great deal. In short, an endpoint implementation bean is annotated with JAX-WS annotations and deployed to the server. The server automatically generates and publishes the abstract contract (i.e. wsdl+schema) for client consumption. All marshalling/unmarshalling is delegated to JAXB.</p><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Plain_old_Java_Object_POJO"/>2.1.2.1. Plain old Java Object (POJO)</h4></div></div></div><p>Let's take a look at simple POJO endpoint implementation. All endpoint associated metadata is provided via JSR-181 annotations</p><pre class="screen">    @WebService
+    @SOAPBinding(style = SOAPBinding.Style.RPC)
+    <span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> JSEBean01
+    {
+       @WebMethod
+       <span class="bold"><strong>public</strong></span> String echo(String input)
+       {
+          ...
+       }
+    }
+</pre><p><span class="bold"><strong>The endpoint as a web application</strong></span></p><p>A JAX-WS java service endpoint (JSE) is deployed as a web application.</p><pre class="screen">  &lt;web-app ...&gt;
+    &lt;servlet&gt;
+      &lt;servlet-name&gt;TestService&lt;/servlet-name&gt;
+      &lt;servlet-class&gt;org.jboss.test.ws.jaxws.samples.jsr181pojo.JSEBean01&lt;/servlet-class&gt;
+    &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+      &lt;servlet-name&gt;TestService&lt;/servlet-name&gt;
+      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+  &lt;/web-app&gt;
+</pre><p><span class="bold"><strong>Packaging the endpoint</strong></span></p><p>A JSR-181 java service endpoint (JSE) is packaged as a web application in a *.war file.</p><pre class="screen">    &lt;war warfile="${build.dir}/libs/jbossws-samples-jsr181pojo.war" webxml="${build.resources.dir}/samples/jsr181pojo/WEB-INF/web.xml"&gt;
+      &lt;classes dir="${build.dir}/classes"&gt;
+        &lt;include name="org/jboss/test/ws/samples/jsr181pojo/JSEBean01.class"/&gt;
+      &lt;/classes&gt;
+    &lt;/war&gt;
+</pre><p>Note, only the endpoint implementation bean and web.xml are required.</p><p><span class="bold"><strong>Accessing the generated WSDL</strong></span></p><p>A successfully deployed service endpoint will show up in the service endpoint manager. This is also where you find the links to the generated wsdl.</p><pre class="screen">   http://yourhost:8080/jbossws/services
+</pre><p>Note, it is also possible to generate the abstract contract off line using jbossw tools. For details of that please see <a href="chap_JBossWS-JAX-WSTools.html" title="Chapter 4. JBossWS-JAX-WSTools">Bottom-Up (Java to WSDL)</a></p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_EJB3_Stateless_Session_Bean_SLSB"/>2.1.2.2. EJB3 Stateless Session Bean (SLSB)</h4></div></div></div><p>The JAX-WS programming model support the same set of annotations on EJB3 stateless session beans as on <a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Plain_old_Java_Object_POJO" title="2.1.2.1. Plain old Java Object (POJO)">Plain old Java Object (POJO)</a> endpoints.  EJB-2.1 endpoints are supported using the JAX-RPC progamming model (with JBossWS-Native only).</p><pre class="screen">    @Stateless
+    @Remote(EJB3RemoteInterface.class)
+    @RemoteBinding(jndiBinding = "/ejb3/EJB3EndpointInterface")
+ 
+    @WebService
+    @SOAPBinding(style = SOAPBinding.Style.RPC)
+    <span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> EJB3Bean01 <span class="bold"><strong>implements</strong></span> EJB3RemoteInterface
+    {
+       @WebMethod
+       <span class="bold"><strong>public</strong></span> String echo(String input)
+       {
+          ...
+       }
+    }
+</pre><p>Above you see an EJB-3.0 stateless session bean that exposes one method both on the remote interface and on and as an endpoint operation.</p><p><span class="bold"><strong>Packaging the endpoint</strong></span></p><p>A JSR-181 EJB service endpoint is packaged as an ordinary ejb deployment.</p><pre class="screen">    &lt;jar jarfile="${build.dir}/libs/jbossws-samples-jsr181ejb.jar"&gt;
+      &lt;fileset dir="${build.dir}/classes"&gt;
+        &lt;include name="org/jboss/test/ws/samples/jsr181ejb/EJB3Bean01.class"/&gt;
+        &lt;include name="org/jboss/test/ws/samples/jsr181ejb/EJB3RemoteInterface.class"/&gt;
+      &lt;/fileset&gt;
+    &lt;/jar&gt;
+</pre><p><span class="bold"><strong>Accessing the generated WSDL</strong></span></p><p>A successfully deployed service endpoint will show up in the service endpoint manager. This is also where you find the links to the generated wsdl.</p><pre class="screen">   http://yourhost:8080/jbossws/services
+</pre><p>Note, it is also possible to generate the abstract contract off line using jbossw tools. For details of that please see <a href="chap_JBossWS-JAX-WSTools.html" title="Chapter 4. JBossWS-JAX-WSTools">Bottom-Up (Java to WSDL)</a></p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Endpoint_Provider"/>2.1.2.3. Endpoint Provider</h4></div></div></div><p>JAX-WS services typically implement a native Java service endpoint interface (SEI), perhaps mapped from a WSDL port type, either directly or via the use of annotations.</p><p>Java SEIs provide a high level Java-centric abstraction that hides the details of converting between Java objects and their XML representations for use in XML-based messages. However, in some cases it is desirable for services to be able to operate at the XML message level. The Provider interface offers an alternative to SEIs and may be implemented by services wishing to work at the XML message level.</p><p>A Provider based service instances invoke method is called for each message received for the service.</p><pre class="screen">   @WebServiceProvider(wsdlLocation = "WEB-INF/wsdl/Provider.wsdl")
+   @ServiceMode(value = Service.Mode.PAYLOAD)
+   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> ProviderBeanPayload <span class="bold"><strong>implements</strong></span> Provider&lt;Source&gt;
+   {
+      <span class="bold"><strong>public</strong></span> Source invoke(Source req)
+      {
+         // Access the entire request PAYLOAD and return the response PAYLOAD
+      }
+   }
+</pre><p>Note, Service.Mode.PAYLOAD is the default and does not have to be declared explicitly. You can also use Service.Mode.MESSAGE to access the entire SOAP message (i.e. with MESSAGE the Provider can also see SOAP Headers)</p><p>The abstract contract for a provider endpoint cannot be derived/generated automatically. Therefore it is necessary to specify the wsdlLocation with the @WebServiceProvider annotation.</p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_WebServiceContext"/>2.1.2.4. WebServiceContext</h4></div></div></div><p>The WebServiceContext is treated as an injectable resource that can be set at the time an endpoint is initialized. The WebServiceContext object will then use thread-local information to return the correct information regardless of how many threads are concurrently being used to serve requests addressed to the same endpoint object.</p><pre class="screen">   @WebService
+   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> EndpointJSE
+   {
+      @Resource
+      WebServiceContext wsCtx;
+   
+      @WebMethod
+      <span class="bold"><strong>public</strong></span> String testGetMessageContext()
+      {
+         SOAPMessageContext jaxwsContext = (SOAPMessageContext)wsCtx.getMessageContext();
+         <span class="bold"><strong>return</strong></span> jaxwsContext != <span class="bold"><strong>null</strong></span> ? "pass" : "fail";
+      }
+   
+      @WebMethod
+      <span class="bold"><strong>public</strong></span> String testGetUserPrincipal()
+      {
+         Principal principal = wsCtx.getUserPrincipal();
+         <span class="bold"><strong>return</strong></span> principal.getName();
+      }
+   
+      @WebMethod
+      <span class="bold"><strong>public</strong></span> <span class="bold"><strong>boolean</strong></span> testIsUserInRole(String role)
+      {
+         <span class="bold"><strong>return</strong></span> wsCtx.isUserInRole(role);
+      }
+   }
+</pre><p> </p><p> </p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-UserGuide_Web_Service_Clients"/>2.1.3. Web Service Clients</h3></div></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Service"/>2.1.3.1. Service</h4></div></div></div><p><code class="computeroutput">Service</code> is an abstraction that represents a WSDL service. A WSDL service is a collection of related ports, each of which consists of a port type bound to a particular protocol and available at a particular endpoint address.</p><p>For most clients, you will start with a set of stubs generated from the WSDL. One of these will be the service, and you will create objects of that class in order to work with the service (see "static case" below).</p><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_Service_Usage"/>2.1.3.1.1. Service Usage</h5></div></div></div><p><span class="bold"><strong>Static case</strong></span></p><p>Most clients will start with a WSDL file, and generate some stubs using jbossws tools like <span class="emphasis"><em>wsconsume</em></span>.  This usually gives a mass of files, one of which is the top of the tree.  This is the service implementation class.</p><p>The generated implementation class can be recognised as it will have two public constructors, one with no arguments and one with two arguments, representing the wsdl location (a java.net.URL) and the service name (a javax.xml.namespace.QName) respectively.</p><p>Usually you will use the no-argument constructor. In this case the WSDL location and service name are those found in the WSDL. These are set implicitly from the WebServiceClient annotation that decorates the generated class.</p><p>The following code snippet shows the generated constructors from the generated class:</p><pre class="screen">// Generated Service Class
+ 
+@WebServiceClient(name="StockQuoteService", targetNamespace="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://example.com/stocks">http://example.com/stocks</a>", wsdlLocation="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://example.com/stocks.wsdl">http://example.com/stocks.wsdl</a>")
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> StockQuoteService <span class="bold"><strong>extends</strong></span> javax.xml.ws.Service 
+{
+   <span class="bold"><strong>public</strong></span> StockQuoteService() 
+   {
+      <span class="bold"><strong>super</strong></span>(<span class="bold"><strong>new</strong></span> URL("<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://example.com/stocks.wsdl">http://example.com/stocks.wsdl</a>"), <span class="bold"><strong>new</strong></span> QName("<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://example.com/stocks">http://example.com/stocks</a>", "StockQuoteService"));
+   }
+ 
+   <span class="bold"><strong>public</strong></span> StockQuoteService(String wsdlLocation, QName serviceName) 
+   {
+      <span class="bold"><strong>super</strong></span>(wsdlLocation, serviceName);
+   }
+ 
+   ...
+}
+</pre><p>Section <a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Dynamic_Proxy" title="2.1.3.2. Dynamic Proxy">Dynamic Proxy</a> explains how to obtain a port from the service and how to invoke an operation on the port. If you need to work with the XML payload directly or with the XML representation of the entire SOAP message, have a look at <a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Dispatch" title="2.1.3.4. Dispatch">Dispatch</a>.</p><p><span class="bold"><strong>Dynamic case</strong></span></p><p>In the dynamic case, when nothing is generated, a web service client uses <code class="computeroutput">Service.create</code> to create Service instances, the following code illustrates this process.</p><pre class="screen">   URL wsdlLocation = <span class="bold"><strong>new</strong></span> URL("<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://example.org/my.wsdl">http://example.org/my.wsdl</a>");
+   QName serviceName = <span class="bold"><strong>new</strong></span> QName("<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://example.org/sample">http://example.org/sample</a>", "MyService");
+   Service service = Service.create(wsdlLocation, serviceName);
+</pre><p> </p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_Handler_Resolver"/>2.1.3.1.2. Handler Resolver</h5></div></div></div><p>JAX-WS provides a flexible plug-in framework for message processing modules, known as handlers, that may be used to extend the capabilities of a JAX-WS runtime system. <a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Handler_Framework" title="2.1.4.1. Handler Framework">Handler Framework</a> describes the handler framework in detail. A Service instance provides access to a HandlerResolver via a pair of getHandlerResolver/setHandlerResolver methods that may be used to configure a set of handlers on a per-service, per-port or per-protocol binding basis.</p><p>When a Service instance is used to create a proxy or a Dispatch instance then the handler resolver currently registered with the service is used to create the required handler chain. Subsequent changes to the handler resolver configured for a Service instance do not affect the handlers on previously created proxies, or Dispatch instances.</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_Executor"/>2.1.3.1.3. Executor</h5></div></div></div><p>Service instances can be configured with a java.util.concurrent.Executor. The executor will then be used to invoke any asynchronous callbacks requested by the application. The setExecutor and getExecutor methods of Service can be used to modify and retrieve the executor configured for a service.</p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Dynamic_Proxy"/>2.1.3.2. Dynamic Proxy</h4></div></div></div><p>You can create an instance of a client proxy using one of getPort methods on the <a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Service" title="2.1.3.1. Service">Service</a>.</p><pre class="screen">   /** 
+    * The getPort method returns a proxy. A service client
+    * uses this proxy to invoke operations on the target
+    * service endpoint. The &lt;code&gt;serviceEndpointInterface&lt;/code&gt;
+    * specifies the service endpoint interface that is supported by
+    * the created dynamic proxy instance.
+    **/
+   <span class="bold"><strong>public</strong></span> &lt;T&gt; T getPort(QName portName, Class&lt;T&gt; serviceEndpointInterface)
+   {
+      ...
+   }
+ 
+   /** 
+    * The getPort method returns a proxy. The parameter
+    * &lt;code&gt;serviceEndpointInterface&lt;/code&gt; specifies the service
+    * endpoint interface that is supported by the returned proxy.
+    * In the implementation of this method, the JAX-WS
+    * runtime system takes the responsibility of selecting a protocol
+    * binding (and a port) and configuring the proxy accordingly.
+    * The returned proxy should not be reconfigured by the client.
+    *
+    **/
+   <span class="bold"><strong>public</strong></span> &lt;T&gt; T getPort(Class&lt;T&gt; serviceEndpointInterface)
+   {
+      ...
+   }
+</pre><p>The service endpoint interface (SEI) is usually generated using tools. For details see <a href="chap_JBossWS-JAX-WSTools.html" title="Chapter 4. JBossWS-JAX-WSTools">Top Down (WSDL to Java)</a></p><p>A generated static <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://community.jboss.org/Service">Service</a> usually also offers typed methods to get ports. These methods also return dynamic proxies that implement the SEI.</p><pre class="screen">@WebServiceClient(name = "TestEndpointService", targetNamespace = "<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://org.jboss.ws/wsref">http://org.jboss.ws/wsref</a>", 
+   wsdlLocation = "<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://localhost.localdomain:8080/jaxws-samples-webserviceref?wsdl">http://localhost.localdomain:8080/jaxws-samples-webserviceref?wsdl</a>")
+ 
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> TestEndpointService <span class="bold"><strong>extends</strong></span> Service
+{
+    ...
+ 
+    <span class="bold"><strong>public</strong></span> TestEndpointService(URL wsdlLocation, QName serviceName) {
+        <span class="bold"><strong>super</strong></span>(wsdlLocation, serviceName);
+    }
+ 
+    @WebEndpoint(name = "TestEndpointPort")
+    <span class="bold"><strong>public</strong></span> TestEndpoint getTestEndpointPort() 
+    {
+        <span class="bold"><strong>return</strong></span> (TestEndpoint)super.getPort(TESTENDPOINTPORT, TestEndpoint.class);
+    }
+}
+</pre><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_WebServiceRef"/>2.1.3.3. WebServiceRef</h4></div></div></div><p>The WebServiceRef annotation is used to declare a reference to a Web service. It follows the resource pattern exemplified by the javax.annotation.Resource annotation in JSR-250.</p><p>There are two uses to the WebServiceRef annotation:</p><div xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" class="orderedlist"><ol><li><p> To define a reference whose type is a generated service class. In this case, the type and value element will both refer to the generated service class type. Moreover, if the reference type can be inferred by the field/method declaration the annotation is applied to, the type and value elements MAY have the default value (Object.class, that is). If the type cannot be inferred, then at least the type element MUST be present with a non-default value. </p></li><li><p> To define a reference whose type is a SEI. In this case, the type element MAY be present with its default value if the type of the reference can be inferred from the annotated field/method declaration, but the value element MUST always be present and refer to a generated service class type (a subtype of javax.xml.ws.Service). The wsdlLocation element, if present, overrides theWSDL location information specified in the WebService annotation of the referenced generated service class. </p></li></ol></div><pre class="screen"><span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> EJB3Client <span class="bold"><strong>implements</strong></span> EJB3Remote
+{
+   @WebServiceRef
+   <span class="bold"><strong>public</strong></span> TestEndpointService service4;
+ 
+   @WebServiceRef
+   <span class="bold"><strong>public</strong></span> TestEndpoint port3;
+</pre><p><span class="bold"><strong>WebServiceRef Customization</strong></span></p><p>Starting from jboss-5.0.x we offer a number of overrides and extensions to the WebServiceRef annotation. These include</p><div class="itemizedlist"><ul><li><p> define the port that should be used to resolve a container-managed port </p></li><li><p> define default Stub property settings for Stub objects </p></li><li><p> define the URL of a final WSDL document to be used </p></li></ul></div><p>Example:</p><pre class="screen">  &lt;service-ref&gt;
+   &lt;service-ref-name&gt;OrganizationService&lt;/service-ref-name&gt;
+   &lt;wsdl-override&gt;file:/wsdlRepository/organization-service.wsdl&lt;/wsdl-override&gt;
+  &lt;/service-ref&gt;
+
+  &lt;service-ref&gt;
+   &lt;service-ref-name&gt;OrganizationService&lt;/service-ref-name&gt;
+   &lt;config-name&gt;Secure Client Config&lt;/config-name&gt;
+   &lt;config-file&gt;META-INF/jbossws-client-config.xml&lt;/config-file&gt;
+   &lt;handler-chain&gt;META-INF/jbossws-client-handlers.xml&lt;/handler-chain&gt;
+  &lt;/service-ref&gt;
+  
+  &lt;service-ref&gt;
+   &lt;service-ref-name&gt;SecureService&lt;/service-ref-name&gt;
+   &lt;service-impl-class&gt;org.jboss.tests.ws.jaxws.webserviceref.SecureEndpointService&lt;/service-impl-class&gt;
+   &lt;service-qname&gt;{http://org.jboss.ws/wsref}SecureEndpointService&lt;/service-qname&gt;
+    &lt;port-component-ref&gt;
+     &lt;service-endpoint-interface&gt;org.jboss.tests.ws.jaxws.webserviceref.SecureEndpoint&lt;/service-endpoint-interface&gt;
+     &lt;port-qname&gt;{http://org.jboss.ws/wsref}SecureEndpointPort&lt;/port-qname&gt;
+     &lt;stub-property&gt;
+      &lt;prop-name&gt;javax.xml.ws.security.auth.username&lt;/prop-name&gt;
+      &lt;prop-value&gt;kermit&lt;/prop-value&gt;
+     &lt;/stub-property&gt;
+     &lt;stub-property&gt;
+      &lt;prop-name&gt;javax.xml.ws.security.auth.password&lt;/prop-name&gt;
+      &lt;prop-value&gt;thefrog&lt;/prop-value&gt;
+     &lt;/stub-property&gt;
+   &lt;/port-component-ref&gt;
+  &lt;/service-ref&gt;
+</pre><p>For details please see <span class="bold"><strong>service-ref_5_0.dtd</strong></span> in the jboss docs directory.</p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Dispatch"/>2.1.3.4. Dispatch</h4></div></div></div><p>XMLWeb Services use XML messages for communication between services and service clients. The higher level JAX-WS APIs are designed to hide the details of converting between Java method invocations and the corresponding XML messages, but in some cases operating at the XML message level is desirable. The Dispatch interface provides support for this mode of interaction.</p><p>Dispatch supports two usage modes, identified by the constants javax.xml.ws.Service.Mode.MESSAGE and javax.xml.ws.Service.Mode.PAYLOAD respectively:</p><p><span class="bold"><strong>Message</strong></span> In this mode, client applications work directly with protocol-specific message structures. E.g., when used with a SOAP protocol binding, a client application would work directly with a SOAP message.</p><p><span class="bold"><strong>Message Payload</strong></span> In this mode, client applications work with the payload of messages rather than the messages themselves. E.g., when used with a SOAP protocol binding, a client application would work with the contents of the SOAP Body rather than the SOAP message as a whole.</p><p>Dispatch is a low level API that requires clients to construct messages or message payloads as XML and requires an intimate knowledge of the desired message or payload structure. Dispatch is a generic class that supports input and output of messages or message payloads of any type.</p><pre class="screen">      Service service = Service.create(wsdlURL, serviceName);
+      Dispatch dispatch = service.createDispatch(portName, StreamSource.class, Mode.PAYLOAD);
+ 
+      String payload = "&lt;ns1:ping xmlns:ns1='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://oneway.samples.jaxws.ws.test.jboss.org/'/">http://oneway.samples.jaxws.ws.test.jboss.org/'/</a>&gt;";
+      dispatch.invokeOneWay(<span class="bold"><strong>new</strong></span> StreamSource(<span class="bold"><strong>new</strong></span> StringReader(payload)));
+ 
+      payload = "&lt;ns1:feedback xmlns:ns1='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://oneway.samples.jaxws.ws.test.jboss.org/'/">http://oneway.samples.jaxws.ws.test.jboss.org/'/</a>&gt;";
+      Source retObj = (Source)dispatch.invoke(<span class="bold"><strong>new</strong></span> StreamSource(<span class="bold"><strong>new</strong></span> StringReader(payload)));
+</pre></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Asynchronous_Invocations"/>2.1.3.5. Asynchronous Invocations</h4></div></div></div><p>The BindingProvider interface represents a component that provides a protocol binding for use by clients, it is implemented by proxies and is extended by the Dispatch interface.</p><p>BindingProvider instances may provide asynchronous operation capabilities. When used, asynchronous operation invocations are decoupled from the BindingProvider instance at invocation time such that the response context is not updated when the operation completes. Instead a separate response context is made available using the Response interface.</p><pre class="screen">   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>void</strong></span> testInvokeAsync() <span class="bold"><strong>throws</strong></span> Exception
+   {
+      URL wsdlURL = <span class="bold"><strong>new</strong></span> URL("<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://">http://</a>" + getServerHost() + ":8080/jaxws-samples-asynchronous?wsdl");
+      QName serviceName = <span class="bold"><strong>new</strong></span> QName(targetNS, "TestEndpointService");
+      Service service = Service.create(wsdlURL, serviceName);
+      TestEndpoint port = service.getPort(TestEndpoint.class);
+ 
+      Response response = port.echoAsync("Async");
+ 
+      // access future
+      String retStr = (String) response.get();
+      assertEquals("Async", retStr);
+   }
+</pre></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Oneway_Invocations"/>2.1.3.6. Oneway Invocations</h4></div></div></div><p>@Oneway indicates that the given web method has only an input message and no output. Typically, a oneway method returns the thread of control to the calling application prior to executing the actual business method.</p><pre class="screen">@WebService (name="PingEndpoint")
+@SOAPBinding(style = SOAPBinding.Style.RPC)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> PingEndpointImpl
+{
+   <span class="bold"><strong>private</strong></span> <span class="bold"><strong>static</strong></span> String feedback;
+   
+   @WebMethod
+   @Oneway
+   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>void</strong></span> ping()
+   {
+      log.info("ping");
+      feedback = "ok";
+   }
+   
+   @WebMethod
+   <span class="bold"><strong>public</strong></span> String feedback()
+   {
+      log.info("feedback");
+      <span class="bold"><strong>return</strong></span> feedback;
+   }
+}
+</pre></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Oneway_Invocations_697545"/>2.1.3.7. Timeout Configuration</h4></div></div></div><p>There are two properties to configure the http connection timeout and client receive time out:</p><pre class="screen"> public void testConfigureTimeout() throws Exception    {   //Set timeout until a connection is established   ((BindingProvider) port).getRequestContext().          put("javax.xml.ws.client.connectionTimeout", "6000");  //Set timeout until the response is received         ((BindingProvider) port).getRequestContext().          put("javax.xml.ws.client.receiveTimeout", "1000");    port.echo("testTimeout");    }
+</pre></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-UserGuide_Common_API"/>2.1.4. Common API</h3></div></div></div><p>This sections describes concepts that apply equally to <a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Web_Service_Endpoints" title="2.1.2. Web Service Endpoints">Web Service Endpoints</a> and <a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Web_Service_Clients" title="2.1.3. Web Service Clients">Web Service Clients</a>.</p><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Handler_Framework"/>2.1.4.1. Handler Framework</h4></div></div></div><p>The handler framework is implemented by a JAX-WS protocol binding in both client and server side runtimes. Proxies, and Dispatch instances, known collectively as binding providers, each use protocol bindings to bind their abstract functionality to specific protocols.</p><p>Client and server-side handlers are organized into an ordered list known as a handler chain. The handlers within a handler chain are invoked each time a message is sent or received. Inbound messages are processed by handlers prior to binding provider processing. Outbound messages are processed by handlers after any binding provider processing.</p><p>Handlers are invoked with a message context that provides methods to access and modify inbound and outbound messages and to manage a set of properties. Message context properties may be used to facilitate communication between individual handlers and between handlers and client and service implementations. Different types of handlers are invoked with different types of message context.</p><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_Logical_Handler"/>2.1.4.1.1. Logical Handler</h5></div></div></div><p>Handlers that only operate on message context properties and message payloads. Logical handlers are protocol agnostic and are unable to affect protocol specific parts of a message. Logical handlers are handlers that implement javax.xml.ws.handler.LogicalHandler.</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_Protocol_Handler"/>2.1.4.1.2. Protocol Handler</h5></div></div></div><p>Handlers that operate on message context properties and protocol specific messages. Protocol handlers are specific to a particular protocol and may access and change protocol specific aspects of a message. Protocol handlers are handlers that implement any interface derived from javax.xml.ws.handler.Handler except javax.xml.ws.handler.LogicalHandler.</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_Service_endpoint_handlers"/>2.1.4.1.3. Service endpoint handlers</h5></div></div></div><p>On the service endpoint, handlers are defined using the @HandlerChain annotation.</p><pre class="screen">@WebService
+@HandlerChain(file = "jaxws-server-source-handlers.xml")
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> SOAPEndpointSourceImpl
+{
+   ...
+}
+</pre><p>The location of the handler chain file supports 2 formats</p><p>1. An absolute java.net.URL in externalForm. (ex: <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://myhandlers.foo.com/handlerfile1.xml">http://myhandlers.foo.com/handlerfile1.xml</a>)</p><p>2. A relative path from the source file or class file. (ex: bar/handlerfile1.xml)</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_Service_client_handlers"/>2.1.4.1.4. Service client handlers</h5></div></div></div><p>On the client side, handler can be configured using the @HandlerChain annotation on the SEI or dynamically using the API.</p><pre class="screen">      Service service = Service.create(wsdlURL, serviceName);
+      Endpoint port = (Endpoint)service.getPort(Endpoint.class);
+      
+      BindingProvider bindingProvider = (BindingProvider)port;
+      List&lt;Handler&gt; handlerChain = <span class="bold"><strong>new</strong></span> ArrayList&lt;Handler&gt;();
+      handlerChain.add(<span class="bold"><strong>new</strong></span> LogHandler());
+      handlerChain.add(<span class="bold"><strong>new</strong></span> AuthorizationHandler());
+      handlerChain.add(<span class="bold"><strong>new</strong></span> RoutingHandler());
+      bindingProvider.getBinding().setHandlerChain(handlerChain); // important!
+</pre></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Message_Context"/>2.1.4.2. Message Context</h4></div></div></div><p>MessageContext is the super interface for all JAX-WS message contexts. It extends Map&lt;String,Object&gt; with additional methods and constants to manage a set of properties that enable handlers in a handler chain to share processing related state. For example, a handler may use the put method to insert a property in the message context that one or more other handlers in the handler chain may subsequently obtain via the get method.</p><p>Properties are scoped as either APPLICATION or HANDLER. All properties are available to all handlers for an instance of an MEP on a particular endpoint. E.g., if a logical handler puts a property in the message context, that property will also be available to any protocol handlers in the chain during the execution of an MEP instance. APPLICATION scoped properties are also made available to client applications (see section 4.2.1) and service endpoint implementations. The defaultscope for a property is HANDLER.</p><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_Logical_Message_Context"/>2.1.4.2.1. Logical Message Context</h5></div></div></div><p><a href="chap_JBossWS-UserGuide.html#JBossWS-UserGuide_Logical_Handler" title="2.1.4.1.1. Logical Handler">Logical Handlers</a> are passed a message context of type LogicalMessageContext when invoked. LogicalMessageContext extends MessageContext with methods to obtain and modify the message payload, it does not provide access to the protocol specific aspects of amessage. A protocol binding defines what component of a message are available via a logical message context. The SOAP binding defines that a logical handler deployed in a SOAP binding can access the contents of the SOAP body but not the SOAP headers whereas the XML/HTTP binding defines that a logical handler can access the entire XML payload of a message.</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_SOAP_Message_Context"/>2.1.4.2.2. SOAP Message Context</h5></div></div></div><p>SOAP handlers are passed a SOAPMessageContext when invoked. SOAPMessageContext extends MessageContext with methods to obtain and modify the SOAP message payload.</p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Fault_Handling"/>2.1.4.3. Fault Handling</h4></div></div></div><p>An implementation may thow a SOAPFaultException</p><pre class="screen">   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>void</strong></span> throwSoapFaultException()
+   {
+      SOAPFactory factory = SOAPFactory.newInstance();
+      SOAPFault fault = factory.createFault("this is a fault string!", <span class="bold"><strong>new</strong></span> QName("<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://foo">http://foo</a>", "FooCode"));
+      fault.setFaultActor("mr.actor");
+      fault.addDetail().addChildElement("test");
+      <span class="bold"><strong>throw</strong></span> <span class="bold"><strong>new</strong></span> SOAPFaultException(fault);
+   }
+</pre><p>or an application specific user exception</p><pre class="screen">   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>void</strong></span> throwApplicationException() <span class="bold"><strong>throws</strong></span> UserException
+   {
+      <span class="bold"><strong>throw</strong></span> <span class="bold"><strong>new</strong></span> UserException("validation", 123, "Some validation error");
+   }
+</pre><div xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" class="note"><h2>Note</h2><p><span class="bold"><strong>Note</strong></span></p><p>In case of the latter JBossWS generates the required fault wrapper beans at runtime if they are not part of the deployment</p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_JBossWS_Extensions"/>2.1.4.4. JBossWS Extensions</h4></div></div></div><p>This section describes propriatary JBoss extensions to JAX-WS, that works with all the supported stacks.</p><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h5 class="title"><a id="JBossWS-UserGuide_Proprietary_Annotations"/>2.1.4.4.1. Proprietary Annotations</h5></div></div></div><p>For the set of standard annotations, please have a look at <a href="chap_JBossWS-JAX-WSAnnotations.html" title="Chapter 16. JBossWS-JAX-WSAnnotations">JAX-WS_Annotations</a>.</p><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h6 class="title"><a id="JBossWS-UserGuide_WebContext"/>2.1.4.4.1.1. WebContext</h6></div></div></div><pre class="screen">/**
+ * Provides web context specific meta data to EJB based web service endpoints.
+ *
+ * @author <a xmlns:xlink="http://www.w3.org/1999/xlink" href="mailto:thomas.diesler@jboss.org">thomas.diesler@jboss.org</a>
+ * @since 26-Apr-2005
+ */
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target(value = { ElementType.TYPE })
+<span class="bold"><strong>public</strong></span> @<span class="bold"><strong>interface</strong></span> WebContext {
+ 
+   /** 
+    * The contextRoot element specifies the context root that the web service endpoint is deployed to.
+    * If it is not specified it will be derived from the deployment short name.
+    * 
+    * Applies to server side port components only. 
+    */
+   String contextRoot() <span class="bold"><strong>default</strong></span> "";
+   
+   /** 
+    * The virtual hosts that the web service endpoint is deployed to.
+    * 
+    * Applies to server side port components only.
+    */
+   String[] virtualHosts() <span class="bold"><strong>default</strong></span> {};
+   
+   /** 
+    * Relative path that is appended to the contextRoot to form fully qualified
+    * endpoint address for the web service endpoint.
+    * 
+    * Applies to server side port components only. 
+    */
+   String urlPattern() <span class="bold"><strong>default</strong></span> "";
+ 
+   /**
+    * The authMethod is used to configure the authentication mechanism for the web service. 
+    * As a prerequisite to gaining access to any web service which are protected by an authorization
+    * constraint, a user must have authenticated using the configured mechanism.
+    *
+    * Legal values for this element are "BASIC", or "CLIENT-CERT".
+    */
+   String authMethod() <span class="bold"><strong>default</strong></span> "";
+ 
+   /**
+    * The transportGuarantee specifies that the communication
+    * between client and server should be NONE, INTEGRAL, or
+    * CONFIDENTIAL. NONE means that the application does not require any
+    * transport guarantees. A value of INTEGRAL means that the application
+    * requires that the data sent between the client and server be sent in
+    * such a way that it can't be changed in transit. CONFIDENTIAL means
+    * that the application requires that the data be transmitted in a
+    * fashion that prevents other entities from observing the contents of
+    * the transmission. In most cases, the presence of the INTEGRAL or
+    * CONFIDENTIAL flag will indicate that the use of SSL is required.
+    */
+   String transportGuarantee() <span class="bold"><strong>default</strong></span> "";
+ 
+   /**
+    * A secure endpoint does not secure wsdl access by default.
+    * Explicitly setting secureWSDLAccess overrides this behaviour.
+    * 
+    * Protect access to WSDL. See <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://jira.jboss.org/jira/browse/JBWS-723">http://jira.jboss.org/jira/browse/JBWS-723</a>   
+    */
+   <span class="bold"><strong>boolean</strong></span> secureWSDLAccess() <span class="bold"><strong>default</strong></span> <span class="bold"><strong>false</strong></span>;
+}
+</pre></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h6 class="title"><a id="JBossWS-UserGuide_SecurityDomain"/>2.1.4.4.1.2. SecurityDomain</h6></div></div></div><pre class="screen">/**
+ * Annotation for specifying the JBoss security domain for an EJB
+ * 
+ * @author &lt;a href="mailto:<a xmlns:xlink="http://www.w3.org/1999/xlink" href="mailto:bill@jboss.org">bill@jboss.org</a>"&gt;Bill Burke&lt;/a&gt;
+ **/
+@Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME)
+<span class="bold"><strong>public</strong></span> @<span class="bold"><strong>interface</strong></span> SecurityDomain
+{
+   /**
+    * The required name for the security domain.
+    * 
+    * Do not use the JNDI name
+    * 
+    *    Good: "MyDomain"
+    *    Bad:  "java:/jaas/MyDomain"
+    */
+   String value();
+   
+   /**
+    * The name for the unauthenticated pricipal
+    */
+   String unauthenticatedPrincipal() <span class="bold"><strong>default</strong></span> "";
+</pre></div></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_JAXB_Introductions"/>2.1.4.5. JAXB Introductions</h4></div></div></div><p>As Kohsuke Kawaguchi writes on <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://weblogs.java.net/blog/kohsuke/archive/2007/07/binding_3rd_par.html">his blog</a>, one common complaint from the JAXB users is the lack of support for binding 3rd party classes. The scenario is this  you are trying to annotate your classes with JAXB annotations to make it XML bindable, but some of the classes are coming from libraries and JDK, and thus you cannot put necessary JAXB annotations on it.</p><p>To solve this JAXB has been designed to provide hooks for programmatic introduction of annotations to the runtime.</p><p>This is currently leveraged by the JBoss JAXB Introductions project, using which users can define annotations in XML and make JAXB see those as if those were in the class files (perhaps coming from 3rd party libraries).</p><p> </p><p>JAXB Introductions are currently supported in JBossWS-Native (server side only, since 3.0.2.GA) and JBossWS-CXF (both server and client side, since 3.2.1.GA).</p><p>Take a look at the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://community.jboss.org/docs/DOC-10075">JAXB Introductions page</a> on the wiki and at the examples in the sources.</p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-UserGuide_Tools"/>2.1.5. Tools</h3></div></div></div><p>The JBossWS Web Service Framework provides unified tooling for all the supported stacks. This currently includes common JAX-WS tools for both contract-first and code-first development and common management tools.</p><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_JAXWS_tools"/>2.1.5.1. JAX-WS tools</h4></div></div></div><p>Please refer to <a href="chap_JBossWS-JAX-WSTools.html" title="Chapter 4. JBossWS-JAX-WSTools">JBossWS_JAX-WS_Tools</a> for details. This covers directions on web service contract generation (bottom-up development) and consumption (top-down and client development).</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Management_tools"/>2.1.5.2. Management tools</h4></div></div></div><p>JBoss and its web service framework come with some tools allowing WS endpoint management.</p><p>Please refer the <a href="chap_JBossWS-Endpointmanagement.html" title="Chapter 10. JBossWS-Endpointmanagement">Endpoint management</a> page for an overview of the available tools. In particular the <a href="chap_JBossWS-Recordsmanagement.html" title="Chapter 11. JBossWS-Recordsmanagement">JBossWS - Records management</a> gives administrators a means of performing custom analysis of their web service traffic as well as exporting communication logs.</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Web_Service_console"/>2.1.5.3. Web Service console</h4></div></div></div><p>All supported stacks provide a web console for getting the list of the endpoints currently deployed on a given host as well as basic metrics regarding invocations to them. The console is available at <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://localhost:8080/jbossws/services">http://localhost:8080/jbossws/services</a> assuming your application server is currently bound to localhost:8080.</p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-UserGuide_Configuration"/>2.1.6. Configuration</h3></div></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-UserGuide_Address_rewrite"/>2.1.6.1. Address rewrite</h4></div></div></div><p>JBossWS allows users to configure the soap:address attribute in the wsdl contract of deployed services as well as wsdl address in the web service console. [due to a known issue this does not currently work with JBossWS-Metro, see: <a xmlns:xlink="http://www.w3.org/1999/xlink" href="https://jira.jboss.org/jira/browse/JBWS-2462">JBWS-2462</a>]</p><p> </p><p><span class="bold"><strong>Server configuration options</strong></span></p><p> </p><p>There're few attributes in the jbossws deployers configuration (currently in jbossws.deployer/META-INF/stack-agnostic-jboss-beans.xml) controlling the way the soap:address attribute in the wsdl is rewritten.</p><pre class="screen">&lt;bean name="WSServerConfig" class="org.jboss.webservices.integration.config.ServerConfigImpl"&gt;
+    &lt;property name="mbeanServer"&gt;&lt;inject bean="WSMBeanServerLocator" property="mbeanServer"/&gt;&lt;/property&gt;
+
+    &lt;property name="webServiceHost"&gt;${jboss.bind.address}&lt;/property&gt;
+    &lt;property name="modifySOAPAddress"&gt;true&lt;/property&gt;
+
+    &lt;!--
+      &lt;property name="webServiceSecurePort"&gt;8443&lt;/property&gt;
+      &lt;property name="webServicePort"&gt;8080&lt;/property&gt;
+    --&gt;
+  &lt;/bean&gt;
+</pre><p> </p><p>If the content of <span class="emphasis"><em>&lt;soap:address&gt;</em></span> in the wsdl is a valid URL, JBossWS will not rewrite it unless <span class="emphasis"><em>modifySOAPAddress</em></span> is true. If the content of <span class="emphasis"><em>&lt;soap:address&gt;</em></span> is not a valid URL instead, JBossWS will always rewrite it using the attribute values given below. Please note that the variable <span class="emphasis"><em>${jboss.bind.address}</em></span> can be used to set the address which the application is bound to at each startup.</p><p> </p><p>The webServiceSecurePort and webServicePort attributes are used to explicitly define the ports to be used for rewriting the SOAP address. If these attributes are not set, the ports will be identified by querying the list of installed connectors. If multiple connectors are found the port of the first connector is used.</p><p> </p><p><span class="bold"><strong>Dynamic rewrite</strong></span></p><p> </p><p>When the application server is bound to multiple addresses or non-trivial real-world network architectures cause request for different external addresses to hit the same endpoint, a static rewrite of the soap:address may not be enough. JBossWS allows for both the soap:address in the wsdl and the wsdl address in the console to be rewritten with the host use in the client request. This way, users always get the right wsdl address assuming they're connecting to an instance having the endpoint they're looking for. To trigger this behaviour, the <span class="bold"><strong>jbossws.undefined.host</strong></span> value has to be specified for the <span class="emphasis"><em>webServiceHost</em></span> attribute.</p><pre class="screen">&lt;property name="webServiceHost"&gt;jbossws.undefined.host&lt;/property&gt;
+&lt;property name="modifySOAPAddress"&gt;true&lt;/property&gt;</pre><p> </p><p>Of course, when a confidential transport address is required, the addresses are always rewritten using https protocol and the port currently configured for the https/ssl connector.</p></div></div></div></div><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-QuickStart.html"><strong>Prev</strong>Chapter 1. JBossWS-QuickStart</a></li><li class="up"><a accesskey="u" href="#"><strong>Top of page</strong></a></li><li class="home"><a accesskey="h" href="index.html"><strong>Front page</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-StackCXFUserGuide.html"><strong>Next</strong>Chapter 3. JBossWS-StackCXFUserGuide</a></li></ul></body></html>

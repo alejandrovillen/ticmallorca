@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory">Chapter 6. JBossWS-wsprovide</title><link rel="stylesheet" href="css/jbossorg.css" type="text/css"/><meta xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" name="generator" content="DocBook XSL Stylesheets V1.72.0"/><link rel="start" href="index.html" title="JBossWS-CXF Guide"/><link rel="up" href="Main documentation.html" title="Part I. Main Documentation"/><link rel="prev" href="chap_JBossWS-wsconsume.html" title="Chapter 5. JBossWS-wsconsume"/><link rel="next" href="chap_JBossWS-wsrunclient.html" title="Chapter 7. JBossWS-wsrunclient"/></head><body><p id="title"><a href="http://www.jboss.org" class="site_href"><strong>JBoss.org</strong></a><a href="http://docs.jboss.org/" class="doc_href"><strong>Community Documentation</strong></a></p><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-wsconsume.html"><strong>Prev</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-wsrunclient.html"><strong>Next</strong></a></li></ul><div class="chapter" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="chap_JBossWS-wsprovide"/>Chapter 6. JBossWS-wsprovide</h2></div></div></div><div class="toc"><dl><dt><span class="section"><a href="chap_JBossWS-wsprovide.html#JBossWS-wsprovide_Command_Line_Tool">6.1. Command Line Tool</a></span></dt><dd><dl><dt><span class="section"><a href="chap_JBossWS-wsprovide.html#JBossWS-wsprovide_Examples">6.1.1. Examples</a></span></dt></dl></dd><dt><span class="section"><a href="chap_JBossWS-wsprovide.html#JBossWS-wsprovide_Maven_Plugin">6.2. Maven Plugin</a></span></dt><dd><dl><dt><span class="section"><a href="chap_JBossWS-wsprovide.html#JBossWS-wsprovide_Examples_147019">6.2.1. Examples</a></span></dt></dl></dd><dt><span class="section"><a href="chap_JBossWS-wsprovide.html#JBossWS-wsprovide_Ant_Task">6.3. Ant Task</a></span></dt><dd><dl><dt><span class="section"><a href="chap_JBossWS-wsprovide.html#JBossWS-wsprovide_Examples_860945">6.3.1. Examples</a></span></dt></dl></dd></dl></div><p>wsprovide is a command line tool and ant task that generates portable JAX-WS artifacts for a service endpoint implementation. It also has the option to "provide" the abstract  contract for offline usage. See <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://community.jboss.org/docs/DOC-13544#BottomUp_Using_wsprovide">"Using wsprovide"</a> for a detailed walk-through.</p><p/><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-wsprovide_Command_Line_Tool"/>6.1. Command Line Tool</h2></div></div></div><p>The command line tool has the following usage:</p><pre class="screen">  usage: wsprovide [options] &lt;endpoint class name&gt;
+  options: 
+  -h, --help                  Show this help message
+  -k, --keep                  Keep/Generate Java source
+  -w, --wsdl                  Enable WSDL file generation
+  -c. --classpath=&lt;path&lt;      The classpath that contains the endpoint
+  -o, --output=&lt;directory&gt;    The directory to put generated artifacts
+  -r, --resource=&lt;directory&gt;  The directory to put resource artifacts
+  -s, --source=&lt;directory&gt;    The directory to put Java source
+  -e, --extension             Enable SOAP 1.2 binding extension
+  -q, --quiet                 Be somewhat more quiet
+  -t, --show-traces           Show full exception stack traces</pre><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-wsprovide_Examples"/>6.1.1. Examples</h3></div></div></div><p>Generating wrapper classes for portable artifacts in the "generated" directory:</p><pre class="screen">wsprovide -o generated foo.Endpoint
+</pre><p>Generating wrapper classes and WSDL in the "generated" directory</p><pre class="screen">wsprovide -o generated -w foo.Endpoint
+</pre><p>Using an endpoint that references other jars</p><pre class="screen">wsprovide -o generated -c application1.jar:application2.jar foo.Endpoint</pre></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-wsprovide_Maven_Plugin"/>6.2. Maven Plugin</h2></div></div></div><p>The wsprovide tools is included in the <span class="bold"><strong>org.jboss.ws.plugins:maven-jaxws-tools-plugin</strong></span> plugin. The plugin has two goals for running the tool, <span class="emphasis"><em>wsprovide</em></span> and <span class="emphasis"><em>wsprovide-test</em></span>, which basically do the same during different maven build phases (the former triggers the sources generation during <span class="emphasis"><em>process-classes</em></span> phase, the latter during the <span class="emphasis"><em>process-test-classes</em></span> one).</p><p>The wsprovide plugin has the following parameters:</p><div class="informaltable"><table border="1"><colgroup><col/><col/><col/></colgroup><thead><tr><th> Attribute </th><th> Description </th><th> Default </th></tr></thead><tbody><tr><td>testClasspathElements</td><td><p>Each classpathElement provides a</p><p>library file to be added to classpath</p></td><td><p>${project.compileClasspathElements}</p><p>or</p><p>${project.testClasspathElements}</p></td></tr><tr><td>outputDirectory</td><td>The output directory for generated artifacts.</td><td><p>${project.build.outputDirectory}</p><p>or</p><p>${project.build.testOutputDirectory}</p></td></tr><tr><td>resourceDirectory</td><td>The output directory for resource artifacts (WSDL/XSD).</td><td>${project.build.directory}/wsprovide/resources</td></tr><tr><td>sourceDirectory</td><td>The output directory for Java source.</td><td>${project.build.directory}/wsprovide/java</td></tr><tr><td>extension</td><td>Enable SOAP 1.2 binding extension.</td><td>false</td></tr><tr><td>generateWsdl</td><td>Whether or not to generate WSDL.</td><td>false</td></tr><tr><td>verbose</td><td>Enables more informational output about command progress.</td><td>false</td></tr><tr><td><span class="bold"><strong>endpointClass</strong></span></td><td><span class="bold"><strong>Service Endpoint Implementation.</strong></span></td><td class="auto-generated"> </td></tr></tbody></table></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-wsprovide_Examples_147019"/>6.2.1. Examples</h3></div></div></div><p>You can use wsprovide in your own project build simply referencing the <span class="emphasis"><em>maven-jaxws-tools-plugin</em></span> in the configured plugins in your pom.xml file.</p><p>The following example makes the plugin provide the wsdl file and artifact sources for the specified endpoint class:</p><pre class="screen">&lt;build&gt;
+  &lt;plugins&gt;
+    &lt;plugin&gt;
+      &lt;groupId&gt;org.jboss.ws.plugins&lt;/groupId&gt;
+      &lt;artifactId&gt;maven-jaxws-tools-plugin&lt;/artifactId&gt;
+      &lt;version&gt;@pom.version@&lt;/version&gt;
+      &lt;configuration&gt;
+        &lt;verbose&gt;true&lt;/verbose&gt;
+        &lt;endpointClass&gt;org.jboss.test.ws.plugins.tools.wsprovide.TestEndpoint&lt;/endpointClass&gt;
+        &lt;generateWsdl&gt;true&lt;/generateWsdl&gt;
+      &lt;/configuration&gt;
+      &lt;executions&gt;
+        &lt;execution&gt;
+          &lt;goals&gt;
+            &lt;goal&gt;wsprovide&lt;/goal&gt;
+          &lt;/goals&gt;
+        &lt;/execution&gt;
+      &lt;/executions&gt;
+    &lt;/plugin&gt;
+  &lt;/plugins&gt;
+&lt;/build&gt;
+</pre><p> </p><p>The following example does the same, but is meant for use in your own testsuite:</p><pre class="screen">&lt;build&gt;
+  &lt;plugins&gt;
+    &lt;plugin&gt;
+      &lt;groupId&gt;org.jboss.ws.plugins&lt;/groupId&gt;
+      &lt;artifactId&gt;maven-jaxws-tools-plugin&lt;/artifactId&gt;
+      &lt;version&gt;@pom.version@&lt;/version&gt;
+      &lt;configuration&gt;
+        &lt;verbose&gt;true&lt;/verbose&gt;
+        &lt;endpointClass&gt;org.jboss.test.ws.plugins.tools.wsprovide.TestEndpoint2&lt;/endpointClass&gt;
+        &lt;generateWsdl&gt;true&lt;/generateWsdl&gt;
+      &lt;/configuration&gt;
+      &lt;executions&gt;
+        &lt;execution&gt;
+          &lt;goals&gt;
+            &lt;goal&gt;wsprovide-test&lt;/goal&gt;
+          &lt;/goals&gt;
+        &lt;/execution&gt;
+      &lt;/executions&gt;
+    &lt;/plugin&gt;
+  &lt;/plugins&gt;
+&lt;/build&gt;
+</pre><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-wsprovide_Ant_Task"/>6.3. Ant Task</h2></div></div></div><div xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" class="note"><h2>Note</h2><p><span class="emphasis"><em><span class="bold"><strong>Note</strong></span></em></span></p><p><span class="emphasis"><em>With 2.0.GA the task was renamed to org.jboss.wsf.spi.tools.ant.WSProvideTask</em></span></p></div><p>The wsprovide ant task has the following attributes:</p><div class="informaltable"><table border="1"><colgroup><col/><col/><col/></colgroup><thead><tr><th> Attribute </th><th> Description </th><th> Default </th></tr></thead><tbody><tr><td>fork</td><td>Whether or not to run the generation task in a separate VM.</td><td>true</td></tr><tr><td>keep</td><td>Keep/Enable Java source code generation.</td><td>false</td></tr><tr><td>destdir</td><td>The output directory for generated artifacts.</td><td>"output"</td></tr><tr><td>resourcedestdir</td><td>The output directory for resource artifacts (WSDL/XSD).</td><td>value of destdir</td></tr><tr><td>sourcedestdir</td><td>The output directory for Java source.</td><td>value of destdir</td></tr><tr><td>extension</td><td>Enable SOAP 1.2 binding extension.</td><td>false</td></tr><tr><td>genwsdl</td><td>Whether or not to generate WSDL.</td><td>false</td></tr><tr><td>verbose</td><td>Enables more informational output about command progress.</td><td>false</td></tr><tr><td><span class="bold"><strong>sei</strong></span></td><td><span class="bold"><strong>Service Endpoint Implementation.</strong></span></td><td class="auto-generated"> </td></tr><tr><td>classpath</td><td>The classpath that contains the service endpoint implementation.</td><td>"."</td></tr></tbody></table></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-wsprovide_Examples_860945"/>6.3.1. Examples</h3></div></div></div><p>Executing wsprovide in verbose mode with separate output directories for source, resources, and classes:</p><pre class="screen">&lt;target name="test-wsproivde" depends="init"&gt;
+  &lt;taskdef name="wsprovide" classname="org.jboss.wsf.spi.tools.ant.WSProvideTask"&gt;
+    &lt;classpath refid="core.classpath"/&gt;
+  &lt;/taskdef&gt;
+  &lt;wsprovide
+    fork="false"
+    keep="true"
+    destdir="out"
+    resourcedestdir="out-resource"
+    sourcedestdir="out-source"
+    genwsdl="true" 
+    verbose="true"
+    sei="org.jboss.test.ws.jaxws.jsr181.soapbinding.DocWrappedServiceImpl"&gt;
+    &lt;classpath&gt;
+      &lt;pathelement path="${tests.output.dir}/classes"/&gt;
+    &lt;/classpath&gt;
+  &lt;/wsprovide&gt;
+&lt;/target&gt;
+</pre></div></div></div><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-wsconsume.html"><strong>Prev</strong>Chapter 5. JBossWS-wsconsume</a></li><li class="up"><a accesskey="u" href="#"><strong>Top of page</strong></a></li><li class="home"><a accesskey="h" href="index.html"><strong>Front page</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-wsrunclient.html"><strong>Next</strong>Chapter 7. JBossWS-wsrunclient</a></li></ul></body></html>

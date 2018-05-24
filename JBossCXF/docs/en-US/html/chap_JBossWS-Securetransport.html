@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory">Chapter 9. JBossWS-Securetransport</title><link rel="stylesheet" href="css/jbossorg.css" type="text/css"/><meta xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" name="generator" content="DocBook XSL Stylesheets V1.72.0"/><link rel="start" href="index.html" title="JBossWS-CXF Guide"/><link rel="up" href="Additional documentation.html" title="Part II. Additional documentation"/><link rel="prev" href="chap_JBossWS-Authentication.html" title="Chapter 8. JBossWS-Authentication"/><link rel="next" href="chap_JBossWS-Endpointmanagement.html" title="Chapter 10. JBossWS-Endpointmanagement"/></head><body><p id="title"><a href="http://www.jboss.org" class="site_href"><strong>JBoss.org</strong></a><a href="http://docs.jboss.org/" class="doc_href"><strong>Community Documentation</strong></a></p><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-Authentication.html"><strong>Prev</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-Endpointmanagement.html"><strong>Next</strong></a></li></ul><div class="chapter" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="chap_JBossWS-Securetransport"/>Chapter 9. JBossWS-Securetransport</h2></div></div></div><div class="toc"><dl><dt><span class="section"><a href="chap_JBossWS-Securetransport.html#JBossWS-Securetransport_Client_side">9.1. Client side</a></span></dt></dl></div><p/><p>JBossWS allows you to require that requests to a given endpoint use SSL by specifying the <span class="emphasis"><em>transportGuarantee</em></span> attribute in the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://community.jboss.org/docs/DOC-13972#WebContext">@WebContext</a> annotation.</p><p>Here is an example using a SLSB endpoint:</p><pre class="screen">@Stateless
+@SecurityDomain("JBossWS")
+@RolesAllowed("friend")
+@WebContext
+(
+  contextRoot="/my-cxt",
+  urlPattern="/*",
+  authMethod="BASIC",
+  transportGuarantee="CONFIDENTIAL",
+  secureWSDLAccess=<span class="bold"><strong>false</strong></span>
+)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> EndpointEJB <span class="bold"><strong>implements</strong></span> EndpointInterface
+{
+  ...
+}
+</pre><p>Similarly to enforce the same requirement on POJO endpoints, you need to edit web.xml and add a user-data-constraint element to your security-constraint element:</p><pre class="screen">  &lt;security-constraint&gt;
+    &lt;web-resource-collection&gt;
+      &lt;web-resource-name&gt;All resources&lt;/web-resource-name&gt;
+      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/web-resource-collection&gt;
+    &lt;auth-constraint&gt;
+      &lt;role-name&gt;friend&lt;/role-name&gt;
+    &lt;/auth-constraint&gt;
+    &lt;user-data-constraint&gt;
+      &lt;transport-guarantee&gt;CONFIDENTIAL&lt;/transport-guarantee&gt;
+    &lt;/user-data-constraint&gt;
+  &lt;/security-constraint&gt;
+
+  &lt;security-role&gt;
+    &lt;role-name&gt;friend&lt;/role-name&gt;
+  &lt;/security-role&gt;
+</pre><p>If you're manually creating your service contract, make sure that the endpoint address in your WSDL file uses a secure protocol. The easiest way is to add "<a xmlns:xlink="http://www.w3.org/1999/xlink" href="https://">https://</a>" to the SOAP Address entry:</p><pre class="screen">   &lt;service name="MyService"&gt;
+    &lt;port name="BasicSecuredPort" binding="tns:MyBinding"&gt;
+     &lt;soap:address location="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="https://localhost:8443/my-ctx/SecureEndpoint">https://localhost:8443/my-ctx/SecureEndpoint</a>"/&gt;
+    &lt;/port&gt;
+   &lt;/service&gt;
+</pre><p>For this to work the Tomcat+SSL connector must be enabled:</p><pre class="screen">   &lt;Connector port="8443" address="${jboss.bind.address}"
+        maxThreads="100" minSpareThreads="5" maxSpareThreads="15"
+        scheme="https" secure="true" clientAuth="want"
+        keystoreFile="${jboss.server.home.dir}/conf/keystores/wsse.keystore" 
+        keystorePass="jbossws"
+        truststoreFile="${jboss.server.home.dir}/conf/keystores/wsse.keystore" 
+        truststorePass="jbossws"
+        sslProtocol = "TLS" /&gt;
+</pre><p>Please refer the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://tomcat.apache.org/tomcat-5.5-doc/ssl-howto.html">Tomcat-5.5 SSL Configuration HOWTO</a> for further details.</p><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-Securetransport_Client_side"/>9.1. Client side</h2></div></div></div><p>On the client side the truststore must be installed:</p><pre class="screen">      &lt;sysproperty key="javax.net.ssl.keyStore" value="${test.resources.dir}/wsse/wsse.keystore"/&gt;
+      &lt;sysproperty key="javax.net.ssl.trustStore" value="${test.resources.dir}/wsse/wsse.truststore"/&gt;
+      &lt;sysproperty key="javax.net.ssl.keyStorePassword" value="jbossws"/&gt;
+      &lt;sysproperty key="javax.net.ssl.trustStorePassword" value="jbossws"/&gt;
+      &lt;sysproperty key="javax.net.ssl.keyStoreType" value="jks"/&gt;
+      &lt;sysproperty key="javax.net.ssl.trustStoreType" value="jks"/&gt;</pre><p>As you can see, this requires you to setup the environment specifying both the location and type of your truststore.</p><p>Finally, in case you see the following exception:</p><pre class="screen">  java.io.IOException: HTTPS hostname wrong:  should be &lt;localhost&gt;
+    at sun.net.www.protocol.https.HttpsClient.checkURLSpoofing(HttpsClient.java:493)
+    at sun.net.www.protocol.https.HttpsClient.afterConnect(HttpsClient.java:418)
+</pre><p>you should disable URL checking on the client side:</p><pre class="screen">   &lt;sysproperty key="org.jboss.security.ignoreHttpsHost" value="true"/&gt;</pre></div></div><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-Authentication.html"><strong>Prev</strong>Chapter 8. JBossWS-Authentication</a></li><li class="up"><a accesskey="u" href="#"><strong>Top of page</strong></a></li><li class="home"><a accesskey="h" href="index.html"><strong>Front page</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-Endpointmanagement.html"><strong>Next</strong>Chapter 10. JBossWS-Endpointmanagement</a></li></ul></body></html>

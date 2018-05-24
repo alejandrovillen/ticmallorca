@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory">Chapter 8. JBossWS-Authentication</title><link rel="stylesheet" href="css/jbossorg.css" type="text/css"/><meta xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" name="generator" content="DocBook XSL Stylesheets V1.72.0"/><link rel="start" href="index.html" title="JBossWS-CXF Guide"/><link rel="up" href="Additional documentation.html" title="Part II. Additional documentation"/><link rel="prev" href="Additional documentation.html" title="Part II. Additional documentation"/><link rel="next" href="chap_JBossWS-Securetransport.html" title="Chapter 9. JBossWS-Securetransport"/></head><body><p id="title"><a href="http://www.jboss.org" class="site_href"><strong>JBoss.org</strong></a><a href="http://docs.jboss.org/" class="doc_href"><strong>Community Documentation</strong></a></p><ul class="docnav"><li class="previous"><a accesskey="p" href="Additional documentation.html"><strong>Prev</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-Securetransport.html"><strong>Next</strong></a></li></ul><div class="chapter" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="chap_JBossWS-Authentication"/>Chapter 8. JBossWS-Authentication</h2></div></div></div><div class="toc"><dl><dt><span class="section"><a href="chap_JBossWS-Authentication.html#d0e3514">8.1. Define the security domain</a></span></dt><dt><span class="section"><a href="chap_JBossWS-Authentication.html#d0e3546">8.2. Use BindingProvider to set principal/credential</a></span></dt><dt><span class="section"><a href="chap_JBossWS-Authentication.html#d0e3559">8.3. Using HTTP Basic Auth for security</a></span></dt></dl></div><p>This page explains the simplest way to authenticate a web service user with JBossWS.</p><p>First we secure the access to the SLSB as we would do for normal (non web service) invocations: this can be easily done through the @RolesAllowed, @PermitAll, @DenyAll annotation. The allowed user roles can be set with these annotations both on the bean class and on any of its business methods.</p><pre class="screen">@Stateless
+@RolesAllowed("friend")
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> EndpointEJB <span class="bold"><strong>implements</strong></span> EndpointInterface
+{
+  ...
+}
+</pre><p>Similarly POJO endpoints are secured the same way as we do for normal web applications in web.xml:</p><pre class="screen">  &lt;security-constraint&gt;
+    &lt;web-resource-collection&gt;
+      &lt;web-resource-name&gt;All resources&lt;/web-resource-name&gt;
+      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/web-resource-collection&gt;
+    &lt;auth-constraint&gt;
+      &lt;role-name&gt;friend&lt;/role-name&gt;
+    &lt;/auth-constraint&gt;
+  &lt;/security-constraint&gt;
+
+  &lt;security-role&gt;
+    &lt;role-name&gt;friend&lt;/role-name&gt;
+  &lt;/security-role&gt;</pre><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="d0e3514"/>8.1. Define the security domain</h2></div></div></div><p>Next, define the security domain for this deployment. This is performed using the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://community.jboss.org/docs/DOC-13972#SecurityDomain">@SecurityDomain</a> annotation for EJB3 endpoints</p><pre class="screen">@Stateless
+@SecurityDomain("JBossWS")
+@RolesAllowed("friend")
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> EndpointEJB <span class="bold"><strong>implements</strong></span> EndpointInterface
+{
+  ...
+}
+</pre><p>or modifying the jboss-web.xml for POJO endpoints</p><pre class="screen">&lt;jboss-web&gt;
+  &lt;security-domain&gt;java:/jaas/JBossWS&lt;/security-domain&gt;
+&lt;/jboss-web&gt;
+</pre><p>The JBossWS security context is configured in login-config.xml and uses the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://wiki.jboss.org/wiki/Wiki.jsp?page=UsersRolesLoginModule">UsersRolesLoginModule</a>. As a matter of fact login-config.xml, that lives in the server config dir, contains this security domain definition:</p><pre class="screen">  &lt;!-- 
+    A template configuration for the JBossWS security domain.
+    This defaults to the UsersRolesLoginModule the same as other and should be
+    changed to a stronger authentication mechanism as required.
+  --&gt;
+  &lt;application-policy name="JBossWS"&gt;
+    &lt;authentication&gt;
+      &lt;login-module code="org.jboss.security.auth.spi.UsersRolesLoginModule"
+        flag="required"&gt;
+        &lt;module-option name="usersProperties"&gt;props/jbossws-users.properties&lt;/module-option&gt;
+        &lt;module-option name="rolesProperties"&gt;props/jbossws-roles.properties&lt;/module-option&gt;
+        &lt;module-option name="unauthenticatedIdentity"&gt;anonymous&lt;/module-option&gt;
+      &lt;/login-module&gt;
+    &lt;/authentication&gt;
+  &lt;/application-policy&gt;
+</pre><p>Of course you can define and use your own security domain as well as your login module (in order to check for users' identity querying a database for example).</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="d0e3546"/>8.2. Use BindingProvider to set principal/credential</h2></div></div></div><p>A web service client may use the javax.xml.ws.BindingProvider interface to set the username/password combination</p><pre class="screen">URL wsdlURL = <span class="bold"><strong>new</strong></span> File("resources/jaxws/samples/context/WEB-INF/wsdl/TestEndpoint.wsdl").toURL();
+QName qname = <span class="bold"><strong>new</strong></span> QName("http://org.jboss.ws/jaxws/context", "TestEndpointService");
+Service service = Service.create(wsdlURL, qname);
+port = (TestEndpoint)service.getPort(TestEndpoint.class);
+ 
+BindingProvider bp = (BindingProvider)port;
+bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "kermit");
+bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "thefrog");
+</pre></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="d0e3559"/>8.3. Using HTTP Basic Auth for security</h2></div></div></div><p>To enable HTTP Basic authentication you use the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://community.jboss.org/docs/DOC-13972#WebContext">@WebContext</a> annotation on the bean class</p><pre class="screen">@Stateless
+@SecurityDomain("JBossWS")
+@RolesAllowed("friend")
+@WebContext(contextRoot="/my-cxt", urlPattern="/*", authMethod="BASIC", transportGuarantee="NONE", secureWSDLAccess=<span class="bold"><strong>false</strong></span>)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> EndpointEJB <span class="bold"><strong>implements</strong></span> EndpointInterface
+{
+  ...
+}
+</pre><p>For POJO endpoints, we modify the web.xml adding the auth-method element:</p><pre class="screen">  &lt;login-config&gt;
+    &lt;auth-method&gt;BASIC&lt;/auth-method&gt;
+    &lt;realm-name&gt;Test Realm&lt;/realm-name&gt;
+  &lt;/login-config&gt;
+</pre></div></div><ul class="docnav"><li class="previous"><a accesskey="p" href="Additional documentation.html"><strong>Prev</strong>Part II. Additional documentation</a></li><li class="up"><a accesskey="u" href="#"><strong>Top of page</strong></a></li><li class="home"><a accesskey="h" href="index.html"><strong>Front page</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-Securetransport.html"><strong>Next</strong>Chapter 9. JBossWS-Securetransport</a></li></ul></body></html>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory">Chapter 14. JBossWS-CXFJMStransporttutorial</title><link rel="stylesheet" href="css/jbossorg.css" type="text/css"/><meta xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" name="generator" content="DocBook XSL Stylesheets V1.72.0"/><link rel="start" href="index.html" title="JBossWS-CXF Guide"/><link rel="up" href="Samples, Tutorials, references.html" title="Part III. Samples &amp; Tutorials"/><link rel="prev" href="chap_JBossWS-CXFWS-ReliableMessagingtutorial.html" title="Chapter 13. JBossWS-CXFWS-ReliableMessagingtutorial"/><link rel="next" href="chap_JBossWS-Articlesandspecs.html" title="Chapter 15. JBossWS-Articlesandspecs"/></head><body><p id="title"><a href="http://www.jboss.org" class="site_href"><strong>JBoss.org</strong></a><a href="http://docs.jboss.org/" class="doc_href"><strong>Community Documentation</strong></a></p><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-CXFWS-ReliableMessagingtutorial.html"><strong>Prev</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-Articlesandspecs.html"><strong>Next</strong></a></li></ul><div class="chapter" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="chap_JBossWS-CXFJMStransporttutorial"/>Chapter 14. JBossWS-CXFJMStransporttutorial</h2></div></div></div><div class="toc"><dl><dt><span class="section"><a href="chap_JBossWS-CXFJMStransporttutorial.html#JBossWS-CXFJMStransporttutorial_WSDL">14.1. WSDL</a></span></dt><dt><span class="section"><a href="chap_JBossWS-CXFJMStransporttutorial.html#JBossWS-CXFJMStransporttutorial_Service_Implementation">14.2. Service Implementation</a></span></dt><dt><span class="section"><a href="chap_JBossWS-CXFJMStransporttutorial.html#JBossWS-CXFJMStransporttutorial_webxml">14.3. web.xml</a></span></dt><dt><span class="section"><a href="chap_JBossWS-CXFJMStransporttutorial.html#JBossWS-CXFJMStransporttutorial_jbosswscxfxml">14.4. jbossws-cxf.xml</a></span></dt></dl></div><p>JBossWS-CXF supports JMS Transport to transfer SOAP messages. There is a testcase in the codebase to demonstrate this ability, available <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://anonsvn.jboss.org/repos/jbossws/stack/cxf/tags/jbossws-cxf-3.4.0.CR2/modules/testsuite/cxf-spring-tests/src/test/java/org/jboss/test/ws/jaxws/samples/jmstransport/">here</a>. In this tutorial, we will use a wsdl first web service example to show you how to enable this feature in JBossWS.</p><p> </p><p/><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-CXFJMStransporttutorial_WSDL"/>14.1. WSDL</h2></div></div></div><pre class="screen">
+&lt;wsdl:definitions name="OrganizationJMSEndpointService" targetNamespace="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://org.jboss.ws/samples/jmstransport">http://org.jboss.ws/samples/jmstransport</a>" xmlns:jms="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/transports/jms">http://cxf.apache.org/transports/jms</a>" xmlns:ns1="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/wsdl/soap/http">http://schemas.xmlsoap.org/wsdl/soap/http</a>" xmlns:soap="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/wsdl/soap/">http://schemas.xmlsoap.org/wsdl/soap/</a>" xmlns:tns="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://org.jboss.ws/samples/jmstransport">http://org.jboss.ws/samples/jmstransport</a>" xmlns:wsdl="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/wsdl/">http://schemas.xmlsoap.org/wsdl/</a>" xmlns:xsd="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/XMLSchema">http://www.w3.org/2001/XMLSchema</a>"&gt;
+  &lt;wsdl:message name="getContactInfoResponse"&gt;
+    &lt;wsdl:part name="return" type="xsd:string"&gt;
+    &lt;/wsdl:part&gt;
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:message name="getContactInfo"&gt;
+    &lt;wsdl:part name="arg0" type="xsd:string"&gt;
+    &lt;/wsdl:part&gt;
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:portType name="Organization"&gt;
+    &lt;wsdl:operation name="getContactInfo"&gt;
+      &lt;wsdl:input message="tns:getContactInfo" name="getContactInfo"&gt;
+    &lt;/wsdl:input&gt;
+      &lt;wsdl:output message="tns:getContactInfoResponse" name="getContactInfoResponse"&gt;
+    &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+  &lt;/wsdl:portType&gt;
+  &lt;wsdl:binding name="HTTPSoapBinding" type="tns:Organization"&gt;
+    &lt;soap:binding style="rpc" transport="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/soap/http">http://schemas.xmlsoap.org/soap/http</a>"/&gt;
+    &lt;wsdl:operation name="getContactInfo"&gt;
+      &lt;soap:operation soapAction="" style="rpc"/&gt;
+      &lt;wsdl:input name="getContactInfo"&gt;
+        &lt;soap:body namespace="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://org.jboss.ws/samples/jmstransport">http://org.jboss.ws/samples/jmstransport</a>" use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output name="getContactInfoResponse"&gt;
+        &lt;soap:body namespace="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://org.jboss.ws/samples/jmstransport">http://org.jboss.ws/samples/jmstransport</a>" use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+  &lt;/wsdl:binding&gt;
+
+  &lt;wsdl:binding name="JMSSoapBinding" type="tns:Organization"&gt;
+    &lt;soap:binding style="rpc" transport="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/transports/jms">http://cxf.apache.org/transports/jms</a>"/&gt;
+    &lt;wsdl:operation name="getContactInfo"&gt;
+      &lt;soap:operation soapAction="" style="rpc"/&gt;
+      &lt;wsdl:input name="getContactInfo"&gt;
+        &lt;soap:body namespace="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://org.jboss.ws/samples/jmstransport">http://org.jboss.ws/samples/jmstransport</a>" use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output name="getContactInfoResponse"&gt;
+        &lt;soap:body namespace="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://org.jboss.ws/samples/jmstransport">http://org.jboss.ws/samples/jmstransport</a>" use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+  &lt;/wsdl:binding&gt;
+
+
+  &lt;wsdl:service name="OrganizationService"&gt;
+    &lt;wsdl:port binding='tns:HTTPSoapBinding' name='HttpEndpointPort'&gt;
+      &lt;soap:address location='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://@jboss.bind.address@:8080/jaxws-samples-jmstransport'/">http://@jboss.bind.address@:8080/jaxws-samples-jmstransport'/</a>&gt;
+    &lt;/wsdl:port&gt;
+    &lt;wsdl:port binding="tns:JMSSoapBinding" name="JmsEndpointPort"&gt;
+           &lt;jms:address
+                   destinationStyle="queue"
+                   jndiConnectionFactoryName="ConnectionFactory" 
+                   jndiDestinationName="queue/RequestQueue"
+                   jndiReplyDestinationName="queue/ResponseQueue"&gt;
+                   &gt;                   
+                &lt;/jms:address&gt;    
+        &lt;/wsdl:port&gt;
+  &lt;/wsdl:service&gt;
+&lt;/wsdl:definitions&gt;</pre><p> </p><p>Apache CXF defines the jms wsdl extension, so the jms queue name or other information about jms in wsdl port can be parsed to send or receive jms message. Check this wiki page to see what jms attributes you can defined in WSDL.  In this wsdl, we define two queues to send and receive the soap message. CXF uses JNDI to look up the jms ConnectionFactory, so we may also need to provide the JNDI properties as the following example :</p><p> </p><pre class="screen">&lt;jms:address
+    destinationStyle="queue"
+    jndiConnectionFactoryName="ConnectionFactory" 
+    jndiDestinationName="queue/RequestQueue"
+    jndiReplyDestinationName="queue/ResponseQueue"
+    &gt;
+    &lt;jms:JMSNamingProperty name="java.naming.factory.initial"
+                           value="org.jnp.interfaces.NamingContextFactory"/&gt;
+    &lt;jms:JMSNamingProperty name="java.naming.provider.url"
+                           value="jnp://localhost:1099"/&gt;
+&lt;/jms:address&gt;</pre><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-CXFJMStransporttutorial_Service_Implementation"/>14.2. Service Implementation</h2></div></div></div><p> </p><p>After generated code from this wsdl , we wrote two class to implement this interface for this two ports . We annotate the portName in annotation to tell web service stack which transport this service uses :</p><p> </p><pre class="screen">@WebService (serviceName="OrganizationService", portName="HttpEndpointPort",wsdlLocation = "WEB-INF/wsdl/jmstransport.wsdl",targetNamespace = "http://org.jboss.ws/samples/jmstransport", endpointInterface="org.jboss.test.ws.jaxws.samples.jmstransport.Organization")
+@SOAPBinding(style = SOAPBinding.Style.RPC)
+ 
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> OrganizationHttpEndpoint <span class="bold"><strong>implements</strong></span> Organization
+{ 
+   @WebMethod
+   <span class="bold"><strong>public</strong></span> String getContactInfo(String organization)
+   {
+      <span class="bold"><strong>return</strong></span> "The '" + organization + "' boss is currently out of office, please call again.";
+   }
+}
+ 
+ 
+ 
+ 
+</pre><p> </p><p> </p><p> </p><pre class="screen">@WebService (serviceName="OrganizationService",portName="JmsEndpointPort", wsdlLocation = "WEB-INF/wsdl/jmstransport.wsdl", targetNamespace = "http://org.jboss.ws/samples/jmstransport", endpointInterface="org.jboss.test.ws.jaxws.samples.jmstransport.Organization")
+@SOAPBinding(style = SOAPBinding.Style.RPC)
+ 
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> OrganizationJmsEndpoint <span class="bold"><strong>implements</strong></span> Organization
+{ 
+   @WebMethod
+   <span class="bold"><strong>public</strong></span> String getContactInfo(String organization)
+   {
+      <span class="bold"><strong>return</strong></span> "The '" + organization + "' boss is currently out of office, please call again.";
+   }
+}
+ 
+ 
+ 
+ 
+</pre><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-CXFJMStransporttutorial_webxml"/>14.3. web.xml</h2></div></div></div><p> </p><pre class="screen">&lt;web-app xmlns="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://java.sun.com/xml/ns/j2ee">http://java.sun.com/xml/ns/j2ee</a>"
+  xmlns:xsi="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>"
+  xsi:schemaLocation="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://java.sun.com/xml/ns/j2ee">http://java.sun.com/xml/ns/j2ee</a> <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd</a>"
+  version="2.4"&gt;
+
+  &lt;servlet&gt;
+    &lt;servlet-name&gt;OrganizationService&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;org.jboss.test.ws.jaxws.samples.jmstransport.OrganizationHttpEndpoint&lt;/servlet-class&gt;
+    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+  &lt;/servlet&gt;
+
+  &lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;OrganizationService&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+  &lt;/servlet-mapping&gt;&lt;/web-app&gt;</pre><p> </p><p>It is almost the same as the usual web.xml to deploy a web service except the &lt;load-on-startup&gt; servlet initializeparameter. This is for jms service start ready when deployment, no need to wait until the first servlet request to start the jms endpoint.</p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-CXFJMStransporttutorial_jbosswscxfxml"/>14.4. jbossws-cxf.xml</h2></div></div></div><p>In addition to web.xml,  the jbossws-cxf.xml is needed to actually pass in cxf to start this two port.</p><p> </p><pre class="screen">&lt;beans xmlns='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+    xmlns:xsi='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>' xmlns:beans='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+        xmlns:jms="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/transports/jms">http://cxf.apache.org/transports/jms</a>"
+    xmlns:jaxws='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>'
+    xsi:schemaLocation='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a> <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">http://www.springframework.org/schema/beans/spring-beans-2.0.xsd</a>
+  <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2006/07/ws-policy">http://www.w3.org/2006/07/ws-policy</a> <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2006/07/ws-policy.xsd">http://www.w3.org/2006/07/ws-policy.xsd</a> 
+  <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a> <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/jaxws.xsd">http://cxf.apache.org/schemas/jaxws.xsd</a>
+  <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/transports/jms">http://cxf.apache.org/transports/jms</a> <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/configuration/jms.xsd">http://cxf.apache.org/schemas/configuration/jms.xsd</a>'&gt;
+
+        &lt;import resource="classpath:META-INF/cxf/cxf-extension-jms.xml"/&gt;    
+    &lt;jaxws:endpoint id='SOAPQueryService'
+        implementor='org.jboss.test.ws.jaxws.samples.jmstransport.OrganizationHttpEndpoint'
+                &gt;
+        &lt;jaxws:invoker&gt;
+            &lt;bean class='org.jboss.wsf.stack.cxf.InvokerJSE'/&gt;
+        &lt;/jaxws:invoker&gt;
+    &lt;/jaxws:endpoint&gt;
+
+    &lt;jaxws:endpoint id='JMSQueryService'
+        implementor='org.jboss.test.ws.jaxws.samples.jmstransport.OrganizationJmsEndpoint'
+                transportId="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/transports/jms">http://cxf.apache.org/transports/jms</a>"&gt;
+    &lt;/jaxws:endpoint&gt;
+&lt;/beans&gt;</pre><p> </p><p><span class="bold"><strong>Note: </strong></span>the import resource is the JmsTransportFactory configuration . It is required to jms transport enablement .</p><p> </p><p>Below gives the war file directory structure to make it more clear what inside :</p><pre class="screen">
+|-- jmstransport-sample.war 
+`-- WEB-INF
+    |-- classes
+    |   `-- org
+    |       `-- jboss
+    |           `-- test
+    |               `-- ws
+    |                   `-- jaxws
+    |                       `-- samples
+    |                           `-- jmstransport
+    |                               |-- JMSTransportTestCase$ResponseListener.class
+    |                               |-- JMSTransportTestCase.class
+    |                               |-- Organization.class
+    |                               |-- OrganizationHttpEndpoint.class
+    |                               `-- OrganizationJmsEndpoint.class
+    |-- jboss-web.xml
+    |-- jbossws-cxf.xml
+    |-- web.xml
+    `-- wsdl
+        `-- jmstransport.wsdl</pre></div></div><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-CXFWS-ReliableMessagingtutorial.html"><strong>Prev</strong>Chapter 13. JBossWS-CXFWS-ReliableMessagingtutori...</a></li><li class="up"><a accesskey="u" href="#"><strong>Top of page</strong></a></li><li class="home"><a accesskey="h" href="index.html"><strong>Front page</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-Articlesandspecs.html"><strong>Next</strong>Chapter 15. JBossWS-Articlesandspecs</a></li></ul></body></html>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory">Chapter 12. JBossWS-CXFWS-Addressingtutorial</title><link rel="stylesheet" href="css/jbossorg.css" type="text/css"/><meta xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" name="generator" content="DocBook XSL Stylesheets V1.72.0"/><link rel="start" href="index.html" title="JBossWS-CXF Guide"/><link rel="up" href="Samples, Tutorials, references.html" title="Part III. Samples &amp; Tutorials"/><link rel="prev" href="Samples, Tutorials, references.html" title="Part III. Samples &amp; Tutorials"/><link rel="next" href="chap_JBossWS-CXFWS-ReliableMessagingtutorial.html" title="Chapter 13. JBossWS-CXFWS-ReliableMessagingtutorial"/></head><body><p id="title"><a href="http://www.jboss.org" class="site_href"><strong>JBoss.org</strong></a><a href="http://docs.jboss.org/" class="doc_href"><strong>Community Documentation</strong></a></p><ul class="docnav"><li class="previous"><a accesskey="p" href="Samples, Tutorials, references.html"><strong>Prev</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-CXFWS-ReliableMessagingtutorial.html"><strong>Next</strong></a></li></ul><div class="chapter" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="chap_JBossWS-CXFWS-Addressingtutorial"/>Chapter 12. JBossWS-CXFWS-Addressingtutorial</h2></div></div></div><div class="toc"><dl><dt><span class="section"><a href="chap_JBossWS-CXFWS-Addressingtutorial.html#JBossWS-CXFWS-Addressingtutorial_The_Service">12.1. The Service</a></span></dt><dt><span class="section"><a href="chap_JBossWS-CXFWS-Addressingtutorial.html#JBossWS-CXFWS-Addressingtutorial_Generating_WSDL_and_JAXWS_Endpoint_Artifacts">12.2. Generating WSDL and JAX-WS Endpoint Artifacts</a></span></dt><dt><span class="section"><a href="chap_JBossWS-CXFWS-Addressingtutorial.html#JBossWS-CXFWS-Addressingtutorial_Writing_Regular_JAXWS_Client">12.3. Writing Regular JAX-WS Client</a></span></dt><dt><span class="section"><a href="chap_JBossWS-CXFWS-Addressingtutorial.html#JBossWS-CXFWS-Addressingtutorial_Turning_on_WSAddressing_10">12.4. Turning on WS-Addressing 1.0</a></span></dt><dd><dl><dt><span class="section"><a href="chap_JBossWS-CXFWS-Addressingtutorial.html#JBossWS-CXFWS-Addressingtutorial_Updating_Endpoint_Code_to_Configure_WSAddressing">12.4.1. Updating Endpoint Code to Configure WS-Addressing</a></span></dt><dt><span class="section"><a href="chap_JBossWS-CXFWS-Addressingtutorial.html#JBossWS-CXFWS-Addressingtutorial_Updating_Client_Code_to_Configure_WSAddressing">12.4.2. Updating Client Code to Configure WS-Addressing</a></span></dt><dt><span class="section"><a href="chap_JBossWS-CXFWS-Addressingtutorial.html#JBossWS-CXFWS-Addressingtutorial_Leveraging_WSAddressing_Policy">12.4.3. Leveraging WS-Addressing Policy</a></span></dt></dl></dd><dt><span class="section"><a href="chap_JBossWS-CXFWS-Addressingtutorial.html#JBossWS-CXFWS-Addressingtutorial_Sample_Sources">12.5. Sample Sources</a></span></dt></dl></div><p><a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://incubator.apache.org/cxf/">Apache CXF</a> comes with support for <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/TR/ws-addr-core/">WS-Addressing 1.0</a>. In this sample we will show how to create client and endpoint communicating each other using this feature.</p><p>Creating WS-Addressing based service and client is very simple. User needs to create regular JAX-WS service and client first. The last step is to configure the addressing on both sides.</p><p> </p><p/><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-CXFWS-Addressingtutorial_The_Service"/>12.1. The Service</h2></div></div></div><p>We will start with the following endpoint implementation (bottom-up approach):</p><p> </p><pre class="screen">@WebService
+(
+   portName = "AddressingServicePort",
+   serviceName = "AddressingService",
+   targetNamespace = "http://www.jboss.org/jbossws/ws-extensions/wsaddressing",
+   endpointInterface = "org.jboss.test.ws.jaxws.samples.wsa.ServiceIface"
+)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> ServiceImpl <span class="bold"><strong>implements</strong></span> ServiceIface
+{
+   <span class="bold"><strong>public</strong></span> String sayHello()
+   {
+      <span class="bold"><strong>return</strong></span> "Hello World!";
+   }
+}
+</pre><p>The endpoint implements the following endpoint interface:</p><pre class="screen"><span class="bold"><strong>package</strong></span> org.jboss.test.ws.jaxws.samples.wsa;
+ 
+<span class="bold"><strong>import</strong></span> javax.jws.WebMethod;
+<span class="bold"><strong>import</strong></span> javax.jws.WebService;
+ 
+@WebService
+(
+   targetNamespace = "http://www.jboss.org/jbossws/ws-extensions/wsaddressing"
+)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>interface</strong></span> ServiceIface
+{
+   @WebMethod
+   String sayHello();
+}
+</pre><p>Let's say that compiled endpoint and interface classes are located in directory <span class="bold"><strong>/home/username/wsa/cxf/classes</strong></span>. Our next step is to generate JAX-WS artifacts and WSDL that will be part of endpoint archive.</p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-CXFWS-Addressingtutorial_Generating_WSDL_and_JAXWS_Endpoint_Artifacts"/>12.2. Generating WSDL and JAX-WS Endpoint Artifacts</h2></div></div></div><p>We will use <span class="bold"><strong>wsprovide</strong></span>  commandline tool to generate WSDL and JAX-WS artifacts. Here's the command:</p><pre class="screen">cd JBOSS_HOME/bin
+
+./wsprovide.sh --keep --wsdl \
+   --classpath=/home/username/wsa/cxf/classes \
+   --output=/home/username/wsa/cxf/wsprovide/generated/classes \
+   --resource=/home/username/wsa/cxf/wsprovide/generated/wsdl \
+   --source=/home/username/wsa/cxf/wsprovide/generated/src \
+   org.jboss.test.ws.jaxws.samples.wsa.ServiceImpl
+</pre><p>The above command generates the following artifacts:</p><pre class="screen"># compiled classes
+ls /home/username/wsa/cxf/wsprovide/generated/classes/org/jboss/test/ws/jaxws/samples/wsa/jaxws
+SayHello.class  SayHelloResponse.class
+
+# java sources
+ls /home/username/wsa/cxf/wsprovide/generated/src/org/jboss/test/ws/jaxws/samples/wsa/jaxws
+SayHello.java  SayHelloResponse.java
+
+# contract artifacts
+ls /home/username/wsa/cxf/wsprovide/generated/wsdl/
+AddressingService.wsdl</pre><p>All aforementioned generated artifacts will be part of endpoint archive. But before we will create the endpoint archive we need to reference generated WSDL from endpoint. To achieve that we will use <span class="bold"><strong>wsdlLocation</strong></span> annotation attribute. Here's the updated endpoint implementation before packaging it to the war file:</p><pre class="screen"><span class="bold"><strong>package</strong></span> org.jboss.test.ws.jaxws.samples.wsa;
+ 
+<span class="bold"><strong>import</strong></span> javax.jws.WebService;
+ 
+@WebService
+(
+   portName = "AddressingServicePort",
+   serviceName = "AddressingService",
+   wsdlLocation = "WEB-INF/wsdl/AddressingService.wsdl",
+   targetNamespace = "http://www.jboss.org/jbossws/ws-extensions/wsaddressing",
+   endpointInterface = "org.jboss.test.ws.jaxws.samples.wsa.ServiceIface"
+)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> ServiceImpl <span class="bold"><strong>implements</strong></span> ServiceIface
+{
+   <span class="bold"><strong>public</strong></span> String sayHello()
+   {
+      <span class="bold"><strong>return</strong></span> "Hello World!";
+   }
+}
+</pre><p> </p><p>Created endpoint war archive consists of the following entries:</p><p> </p><pre class="screen">jar -tvf jaxws-samples-wsa.war 
+     0 Mon Apr 21 20:39:30 CEST 2008 META-INF/
+   106 Mon Apr 21 20:39:28 CEST 2008 META-INF/MANIFEST.MF
+     0 Mon Apr 21 20:39:30 CEST 2008 WEB-INF/
+   593 Mon Apr 21 20:39:28 CEST 2008 WEB-INF/web.xml
+     0 Mon Apr 21 20:39:30 CEST 2008 WEB-INF/classes/
+     0 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/
+     0 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/
+     0 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/
+     0 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/ws/
+     0 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/
+     0 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/
+     0 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsa/
+   374 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsa/ServiceIface.class
+   954 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsa/ServiceImpl.class
+     0 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsa/jaxws/
+   703 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsa/jaxws/SayHello.class
+  1074 Mon Apr 21 20:39:26 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsa/jaxws/SayHelloResponse.class
+     0 Mon Apr 21 20:39:30 CEST 2008 WEB-INF/wsdl/
+  2378 Mon Apr 21 20:39:28 CEST 2008 WEB-INF/wsdl/AddressingService.wsdl
+</pre><p>The content of web.xml file is:</p><pre class="screen">&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;web-app
+   version="2.5" xmlns="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://java.sun.com/xml/ns/javaee">http://java.sun.com/xml/ns/javaee</a>" 
+   xmlns:xsi="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>" 
+   xsi:schemaLocation="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://java.sun.com/xml/ns/javaee">http://java.sun.com/xml/ns/javaee</a> <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd</a>"&gt;
+   &lt;servlet&gt;
+      &lt;servlet-name&gt;AddressingService&lt;/servlet-name&gt;
+      &lt;servlet-class&gt;org.jboss.test.ws.jaxws.samples.wsa.ServiceImpl&lt;/servlet-class&gt;
+   &lt;/servlet&gt;
+   &lt;servlet-mapping&gt;
+      &lt;servlet-name&gt;AddressingService&lt;/servlet-name&gt;
+      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+   &lt;/servlet-mapping&gt;
+&lt;/web-app&gt;
+</pre></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-CXFWS-Addressingtutorial_Writing_Regular_JAXWS_Client"/>12.3. Writing Regular JAX-WS Client</h2></div></div></div><p>The following is the regular JAX-WS client using endpoint interface to lookup the webservice:</p><p> </p><p>package org.jboss.test.ws.jaxws.samples.wsa;</p><pre class="screen">import java.net.URL;import javax.xml.namespace.QName;import javax.xml.ws.Service;public final class SimpleServiceTestCase{   private final String serviceURL = "http://" + getServerHost() + ":8080/jaxws-samples-wsa/AddressingService";      public static void main(String[] args) throws Exception   {      // create service      QName serviceName = new QName("http://www.jboss.org/jbossws/ws-extensions/wsaddressing", "AddressingService");      URL wsdlURL = new URL(serviceURL + "?wsdl");      Service service = Service.create(wsdlURL, serviceName);      ServiceIface proxy = (ServiceIface)service.getPort(ServiceIface.class);            // invoke method      proxy.sayHello();   }   }</pre><p>Now we have both endpoint and client implementation but without WS-Addressing in place. Our next goal is to turn on the WS-Addressing feature.</p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-CXFWS-Addressingtutorial_Turning_on_WSAddressing_10"/>12.4. Turning on WS-Addressing 1.0</h2></div></div></div><p>In order to turn on WS-Addressing in JBossWS-CXF integration the last two steps are remaining:</p><div class="itemizedlist"><ul><li><p>annotate service endpoint with @Addressing annotation</p></li><li><p>modify client to configure WS-Addressing using JAX-WS webservice feature</p></li></ul></div><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-CXFWS-Addressingtutorial_Updating_Endpoint_Code_to_Configure_WSAddressing"/>12.4.1. Updating Endpoint Code to Configure WS-Addressing</h3></div></div></div><p>Now we need to update endpoint implementation to configure WS-Addressing. Here's the updated endpoint code:</p><pre class="screen"><span class="bold"><strong>package</strong></span> org.jboss.test.ws.jaxws.samples.wsa;
+ 
+<span class="bold"><strong>import</strong></span> javax.jws.WebService;
+<span class="bold"><strong>import</strong></span> javax.xml.ws.soap.Addressing;
+ 
+@WebService
+(
+   portName = "AddressingServicePort",
+   serviceName = "AddressingService",
+   wsdlLocation = "WEB-INF/wsdl/AddressingService.wsdl",
+   targetNamespace = "http://www.jboss.org/jbossws/ws-extensions/wsaddressing",
+   endpointInterface = "org.jboss.test.ws.jaxws.samples.wsa.ServiceIface"
+)
+@Addressing(enabled=true, required=<span class="bold"><strong>true</strong></span>)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> ServiceImpl <span class="bold"><strong>implements</strong></span> ServiceIface
+{
+   <span class="bold"><strong>public</strong></span> String sayHello()
+   {
+      <span class="bold"><strong>return</strong></span> "Hello World!";
+   }
+}
+</pre><p>As users can see we added JAX-WS 2.1  <span class="bold"><strong>Addressing</strong></span> annotation to configure WS-Addressing. The next step is to repackage the endpoint archive to apply this change.</p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-CXFWS-Addressingtutorial_Updating_Client_Code_to_Configure_WSAddressing"/>12.4.2. Updating Client Code to Configure WS-Addressing</h3></div></div></div><p>Now we need to update client implementation as well to configure WS-Addressing. Here's the updated client code:</p><pre class="screen"><span class="bold"><strong>package</strong></span> org.jboss.test.ws.jaxws.samples.wsa;
+ 
+<span class="bold"><strong>import</strong></span> java.net.URL;
+<span class="bold"><strong>import</strong></span> javax.xml.namespace.QName;
+<span class="bold"><strong>import</strong></span> javax.xml.ws.Service;
+<span class="bold"><strong>import</strong></span> javax.xml.ws.soap.AddressingFeature;
+ 
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>final</strong></span> <span class="bold"><strong>class</strong></span> AddressingTestCase
+{
+   <span class="bold"><strong>private</strong></span> <span class="bold"><strong>final</strong></span> String serviceURL = "http://" + getServerHost() + ":8080/jaxws-samples-wsa/AddressingService";
+   
+   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>static</strong></span> <span class="bold"><strong>void</strong></span> main(String[] args) <span class="bold"><strong>throws</strong></span> Exception
+   {
+      // construct proxy
+      QName serviceName = <span class="bold"><strong>new</strong></span> QName("http://www.jboss.org/jbossws/ws-extensions/wsaddressing", "AddressingService");
+      URL wsdlURL = <span class="bold"><strong>new</strong></span> URL(serviceURL + "?wsdl");
+      Service service = Service.create(wsdlURL, serviceName);
+      ServiceIface proxy = (ServiceIface)service.getPort(ServiceIface.class,  <span class="bold"><strong>new</strong></span> AddressingFeature());
+      // invoke method
+      assertEquals("Hello World!", proxy.sayHello());
+   }
+   
+}
+</pre><p>And that's all. Now we have both JAX-WS client and endpoint communicating each other using WS-Addressing feature.</p><p> </p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-CXFWS-Addressingtutorial_Leveraging_WSAddressing_Policy"/>12.4.3. Leveraging WS-Addressing Policy</h3></div></div></div><p>An option you can also evaluate to simplify both client and server deployment, is to let the server engine generate and publish the wsdl contract instead of using the one mentioned above: (please note the removal of wsdlLocation attribute in the @WebService annotation)</p><p> </p><pre class="screen">@WebService
+(
+   portName = "AddressingServicePort",
+   serviceName = "AddressingService",
+   targetNamespace = "http://www.jboss.org/jbossws/ws-extensions/wsaddressing",
+   endpointInterface = "org.jboss.test.ws.jaxws.samples.wsa.ServiceIface"
+)
+@Addressing(enabled=true, required=<span class="bold"><strong>true</strong></span>)
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> ServiceImpl <span class="bold"><strong>implements</strong></span> ServiceIface
+{
+     ...
+}
+</pre><p> </p><p>This way the endpoint is published with a contract containing a WS-Addressing Policy that tells clients addressing needs to be on.</p><p> </p><pre class="screen">&lt;wsp:Policy wsu:Id="AddressingServiceSoapBinding_WSAM_Addressing_Policy"&gt;
+  &lt;wsam:Addressing&gt;
+    &lt;wsp:Policy/&gt;
+  &lt;/wsam:Addressing&gt;
+&lt;/wsp:Policy&gt;</pre><p> </p><p>The client can then simply do as follows:</p><p> </p><pre class="screen">Service service = Service.create(wsdlURL, serviceName);
+ServiceIface proxy = (ServiceIface)service.getPort(ServiceIface.class);
+// invoke method
+</pre><p> </p><p>No need for setting the AddressingFeature, the policy engine takes care of enabling WS-Addressing to match the policy advertised by the server.</p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-CXFWS-Addressingtutorial_Sample_Sources"/>12.5. Sample Sources</h2></div></div></div><p>All sources from this tutorial are part of JBossWS-CXF testsuite.</p></div></div><ul class="docnav"><li class="previous"><a accesskey="p" href="Samples, Tutorials, references.html"><strong>Prev</strong>Part III. Samples &amp; Tutorials</a></li><li class="up"><a accesskey="u" href="#"><strong>Top of page</strong></a></li><li class="home"><a accesskey="h" href="index.html"><strong>Front page</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-CXFWS-ReliableMessagingtutorial.html"><strong>Next</strong>Chapter 13. JBossWS-CXFWS-ReliableMessagingtutori...</a></li></ul></body></html>

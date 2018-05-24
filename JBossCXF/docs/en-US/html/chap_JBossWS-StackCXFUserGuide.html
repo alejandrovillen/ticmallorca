@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory">Chapter 3. JBossWS-StackCXFUserGuide</title><link rel="stylesheet" href="css/jbossorg.css" type="text/css"/><meta xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" name="generator" content="DocBook XSL Stylesheets V1.72.0"/><link rel="start" href="index.html" title="JBossWS-CXF Guide"/><link rel="up" href="Main documentation.html" title="Part I. Main Documentation"/><link rel="prev" href="chap_JBossWS-UserGuide.html" title="Chapter 2. JBossWS-UserGuide"/><link rel="next" href="chap_JBossWS-JAX-WSTools.html" title="Chapter 4. JBossWS-JAX-WSTools"/></head><body><p id="title"><a href="http://www.jboss.org" class="site_href"><strong>JBoss.org</strong></a><a href="http://docs.jboss.org/" class="doc_href"><strong>Community Documentation</strong></a></p><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-UserGuide.html"><strong>Prev</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-JAX-WSTools.html"><strong>Next</strong></a></li></ul><div class="chapter" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="chap_JBossWS-StackCXFUserGuide"/>Chapter 3. JBossWS-StackCXFUserGuide</h2></div></div></div><div class="toc"><dl><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_JBossWS_CXF_Integration">3.1. JBossWS CXF Integration</a></span></dt><dd><dl><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_Creating_a_Bus_instance">3.1.1. Creating a Bus instance</a></span></dt><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_Server_Side_Integration_Customization">3.1.2. Server Side Integration Customization</a></span></dt></dl></dd><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_Extended_Features">3.2. Extended Features</a></span></dt><dd><dl><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_WSAddressing">3.2.1. WS-Addressing</a></span></dt><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_WSReliableMessaging">3.2.2. WS-ReliableMessaging</a></span></dt><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_WSPolicy">3.2.3. WS-Policy</a></span></dt><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_WSSecurity">3.2.4. WS-Security</a></span></dt><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_JMS_transport">3.2.5. JMS transport</a></span></dt></dl></dd><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_HTTP_server_transport_setup">3.3. HTTP server transport setup</a></span></dt><dt><span class="section"><a href="chap_JBossWS-StackCXFUserGuide.html#JBossWS-StackCXFUserGuide_SOAP_Message_Logging">3.4. SOAP Message Logging</a></span></dt></dl></div><div xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" class="note"><h2>Note</h2><p>This page covers features available in <span class="bold"><strong>JBossWS CXF stack only</strong></span>. <a href="chap_JBossWS-UserGuide.html" title="Chapter 2. JBossWS-UserGuide">Please refer to the common user guide</a> for a basic introduction to JAX-WS programming as well as documentation on all features, tools, etc. the JBossWS Web Service Framework provides for every supported stack (including CXF stack).</p><p> </p><p> </p><p>Also please note this page does not go through the documentation of every feature, option, etc. provided by Apache CXF; on the countrary the only topics covered here are specific issues regarding integration with JBoss and stack specific features provided by JBossWS Web Service Framework for the CXF stack. A few tutorials are also provided for show how to leverage some WS technologies.</p><p> </p><p>The <span class="emphasis"><em>official Apache CXF documentation</em></span> is available <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org">here</a>.</p></div><p/><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-StackCXFUserGuide_JBossWS_CXF_Integration"/>3.1. JBossWS CXF Integration</h2></div></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-StackCXFUserGuide_Creating_a_Bus_instance"/>3.1.1. Creating a Bus instance</h3></div></div></div><p>Most of the Apache CXF features are configurable using the <span class="emphasis"><em>org.apache.cxf.Bus</em></span> class. New Bus instances are produced by the currently configured <span class="emphasis"><em>org.apache.cxf.BusFactory</em></span> implementation the following way:</p><pre class="screen">Bus bus = BusFactory.newInstance().createBus();
+</pre><p>The algorithm for selecting the actual implementation of BusFactory to be used leverages the Service API, basically looking for optional configurations in META-INF/services/... location using the current classloader. JBossWS-CXF integration comes with his own implementation of BusFactory, <span class="emphasis"><em>org.jboss.wsf.stack.cxf.client.configuration.JBossWSBusFactory</em></span>, that allows for automatic detection of Spring availability as well as seamless setup of JBossWS customizations on top of Apache CXF. JBossWSBusFactory is <span class="emphasis"><em>automatically</em></span> retrieved by the BusFactory.newInstance() call above.</p><p> </p><p>JBossWS users willing to explicitely use functionalities of <span class="emphasis"><em>org.apache.cxf.bus.spring.SpringBusFactory</em></span> or <span class="emphasis"><em>org.apache.cxf.bus.CXFBusFactory,</em></span> get the same API with JBossWS additions through JBossWSBusFactory:</p><pre class="screen">String myConfigFile = ...
+Bus bus = <span class="bold"><strong>new</strong></span> JBossWSBusFactory().createBus(myConfigFile);
+</pre><p> </p><pre class="screen">Map&lt;Class, Object&gt; myExtensions = <span class="bold"><strong>new</strong></span> HashMap&lt;Class, Object&gt;();
+myExtensions.put(...);
+Bus bus = <span class="bold"><strong>new</strong></span> JBossWSBusFactory().createBus(myExtensions);
+</pre></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-StackCXFUserGuide_Server_Side_Integration_Customization"/>3.1.2. Server Side Integration Customization</h3></div></div></div><p>It is possible to customize the JBossWS and CXF integration by incorporating the CXF configuration file to the endpoint deployment archive. In order for that to be possible, JBossWS-CXF requires Spring to be installed in the application server. The Spring Framework libraries installation can be perfomed using the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://community.jboss.org/docs/DOC-13545">JBossWS-CXF installation</a>.</p><p>The convention is the following:</p><div class="itemizedlist"><ul><li><p> file name must be <span class="bold"><strong>jbossws-cxf.xml</strong></span> </p></li><li><p> for POJO deployments it is located in <span class="bold"><strong>WEB-INF</strong></span> directory </p></li><li><p> for EJB3 deployments it is located in <span class="bold"><strong>META-INF</strong></span> directory </p></li></ul></div><p>If user do not provide its own CXF configuration file, a default one is automatically generated during the deployment.</p><p>For POJO deployments the generated <span class="bold"><strong>jbossws-cxf.xml</strong></span> has the following content:</p><pre class="screen">&lt;beans
+  xmlns='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:xsi='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>'
+  xmlns:beans='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:jaxws='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>'
+  xsi:schemaLocation='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>
+  <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans/spring-beans.xsd">http://www.springframework.org/schema/beans/spring-beans.xsd</a>
+  <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>
+  <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/jaxws.xsd">http://cxf.apache.org/schemas/jaxws.xsd</a>'&gt;
+
+  &lt;!-- one or more jaxws:endpoint POJO declarations --&gt;
+  &lt;jaxws:endpoint
+    id='POJOEndpoint'
+    address='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://localhost:8080/pojo_endpoint_archive_name">http://localhost:8080/pojo_endpoint_archive_name</a>'  
+    implementor='my.package.POJOEndpointImpl'&gt;
+    &lt;jaxws:invoker&gt;
+      &lt;bean class='org.jboss.wsf.stack.cxf.InvokerJSE'/&gt;
+    &lt;/jaxws:invoker&gt;
+  &lt;/jaxws:endpoint&gt;&lt;/beans&gt;
+</pre><p>For EJB3 deployments the generated <span class="bold"><strong>jbossws-cxf.xml</strong></span> has the following content:</p><pre class="screen">&lt;beans
+  xmlns='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:xsi='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>'
+  xmlns:beans='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:jaxws='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>'
+  xsi:schemaLocation='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>
+  <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans/spring-beans.xsd">http://www.springframework.org/schema/beans/spring-beans.xsd</a>
+  <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>
+  <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/jaxws.xsd">http://cxf.apache.org/schemas/jaxws.xsd</a>'&gt;
+
+  &lt;!-- one or more jaxws:endpoint EJB3 declarations --&gt;
+  &lt;jaxws:endpoint
+    id='EJB3Endpoint'
+    address='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://localhost:8080/ejb3_endpoint_archive_name">http://localhost:8080/ejb3_endpoint_archive_name</a>'  
+    implementor='my.package.EJB3EndpointImpl'&gt;
+    &lt;jaxws:invoker&gt;
+      &lt;bean class='org.jboss.wsf.stack.cxf.InvokerEJB3'/&gt;
+    &lt;/jaxws:invoker&gt;
+  &lt;/jaxws:endpoint&gt;&lt;/beans&gt;
+</pre><p>Providing custom CXF configuration to the endpoint deployment is useful in cases when users want to use features that are not part of standard JAX-WS specification but CXF implements them. For example see <a href="chap_JBossWS-CXFWS-ReliableMessagingtutorial.html" title="Chapter 13. JBossWS-CXFWS-ReliableMessagingtutorial">CXF WS-RM tutorial</a> customization file. We are providing custom CXF endpoint configuration there to turn on WS-RM feature for endpoint.</p><div xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" class="note"><h2>Note</h2><p><span class="emphasis"><em><span class="bold"><strong>Note</strong></span></em></span></p><p><span class="emphasis"><em>When user incorporates its own CXF configuration to the endpoint archive he must reference either <span class="bold"><strong>org.jboss.wsf.stack.cxf.InvokerJSE</strong></span> or <span class="bold"><strong>org.jboss.wsf.stack.cxf.InvokerEJB3</strong></span> jaxws invoker bean there for each jaxws endpoint.</em></span></p><p> </p></div></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-StackCXFUserGuide_Extended_Features"/>3.2. Extended Features</h2></div></div></div><p><a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cwiki.apache.org/CXF20DOC/ws-support.html">Here</a> is the CXF documentation about supported WS-* specifications.</p><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-StackCXFUserGuide_WSAddressing"/>3.2.1. WS-Addressing</h3></div></div></div><p>Apache CXF has a thorough support for WS-Addressing; details are available at the following pages:</p><p><a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cwiki.apache.org/CXF20DOC/ws-addressing.html">CXF WS-Addressing documentation</a> <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cwiki.apache.org/CXF20DOC/wsaconfiguration.html">CXF WS-Addressing configuration</a></p><p> </p><p>Given the JAXWS specification currently covers WS-Addressing basic fuctionalities, users simply needing to enable it can make use of the @Addressing annotation and AddressingFeature, as shown in the following JBossWS-CXF tutorial:</p><p><a href="chap_JBossWS-CXFWS-Addressingtutorial.html" title="Chapter 12. JBossWS-CXFWS-Addressingtutorial">JBossWS-CXF WS-Addressing Tutorial</a></p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-StackCXFUserGuide_WSReliableMessaging"/>3.2.2. WS-ReliableMessaging</h3></div></div></div><p>The Apache CXF technical documentation on WS-RealiableMessaging is available as a reference at the following pages:</p><p><a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cwiki.apache.org/CXF20DOC/ws-reliablemessaging.html">CXF WS-ReliableMessaging documentation</a> <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cwiki.apache.org/CXF20DOC/wsrmconfiguration.html">CXF WS-ReliableMessaging configuration</a></p><p> </p><p>For a complete tutorial on how to enable WS-ReliableMessaging in a user client-server application, please take a look at:</p><p><a href="chap_JBossWS-CXFWS-ReliableMessagingtutorial.html" title="Chapter 13. JBossWS-CXFWS-ReliableMessagingtutorial">JBossWS-CXF WS-ReliableMessaging Tutorial</a></p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-StackCXFUserGuide_WSPolicy"/>3.2.3. WS-Policy</h3></div></div></div><p>Apache CXF technical documentation on the WS-Policy engine and its configuration is available at:</p><p><a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cwiki.apache.org/CXF20DOC/ws-policy.html">CXF WS-Policy documentation</a> <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cwiki.apache.org/CXF20DOC/wspconfiguration.html">CXF WS-Policy configuration</a></p><p> </p><p>For a complete sample of WS-Policy usage, please take a look at the JBossWS-CXF WS-ReliableMessaging tutorial below, as WS-RM is implemented leveraging policies there:</p><p><a href="chap_JBossWS-CXFWS-ReliableMessagingtutorial.html" title="Chapter 13. JBossWS-CXFWS-ReliableMessagingtutorial">JBossWS-CXF WS-Policy &amp; WS-ReliableMessaging Tutorial</a></p><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-StackCXFUserGuide_Note_on_PolicyEngine_setup"/>3.2.3.1. Note on PolicyEngine setup</h4></div></div></div><p>When building up the Bus without Spring libraries available on the classpath, JBossWSBusFactory still makes sure the PolicyEngine (as well as the RMManager) is properly setup. This allows users to leverage basic WS-Policy functionalities the same way they'd do with a full Spring-enabled Bus.</p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-StackCXFUserGuide_WSSecurity"/>3.2.4. WS-Security</h3></div></div></div><p><a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/">Apache CXF</a> leverages <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://ws.apache.org/wss4j/">WSS4J</a> to provide WS-Security functionalities. This means that thanks to the JBossWS-CXF integration, users can create web service applications using CXF - WSS4J implementation of WS-Security and deploy them on JBoss Application Server.</p><p> </p><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-StackCXFUserGuide_WSS4J_security_on_JBoss"/>3.2.4.1. WSS4J security on JBoss</h4></div></div></div><p>The Apache CXF documentation features an brief chapter on <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cwiki.apache.org/CXF20DOC/ws-security.html">how to use WSS4J security in CXF</a>. Here below instead you'll find some explanations on how to create a simple application and what you need to do to leverage WSS4J security on JBoss.</p><p> </p><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Creating the web service endpoint </strong></span></span></dt><dd/></dl></div><p>First of all you need to create the web service endpoint / client using JAX-WS. This can be achieved in many ways, for instance you might want to:</p><div xmlns:rf="java:org.jboss.highlight.XhtmlRendererFactory" class="orderedlist"><ol><li><p> write your endpoint implementation, then run the <span class="bold"><strong><span class="emphasis"><em>wsprovide</em></span></strong></span> JBoss commandline tool which generates the service contract (bottom-up approach); </p></li><li><p> run the <span class="bold"><strong><span class="emphasis"><em>wsconsume</em></span></strong></span> JBoss commandline tool to get the client artifacts from the service contract (top-down approach); </p></li><li><p> write your client implementation. </p></li></ol></div><p> </p><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Turn on WS-Security </strong></span></span></dt><dd/></dl></div><p>WSS4J security is triggered through interceptors that are added to the service and/or client. These interceptors allows you to perform the most common WS-Security related process:</p><div class="itemizedlist"><ul><li><p> pass authentication tokens between services; </p></li><li><p> encrypt messages or parts of messages; </p></li><li><p> sign messages; </p></li><li><p> timestamp messages. </p></li></ul></div><p>Interceptors can be added either programmatically or through the Spring xml configuration of endpoints.</p><p>For instance, on server side, you can configure signature and encryption in the <span class="emphasis"><em>jboss-cxf.xml</em></span> file this way:</p><pre class="screen">&lt;beans
+  xmlns='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:xsi='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>'
+  xmlns:beans='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:jaxws='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>'
+  xsi:schemaLocation='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/core">http://cxf.apache.org/core</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/core.xsd">http://cxf.apache.org/schemas/core.xsd</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">http://www.springframework.org/schema/beans/spring-beans-2.0.xsd</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/jaxws.xsd">http://cxf.apache.org/schemas/jaxws.xsd</a>'&gt;
+  
+  &lt;bean id="Sign_Request" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor"&gt;
+    &lt;constructor-arg&gt;
+      &lt;map&gt;
+        &lt;entry key="action" value="Timestamp Signature Encrypt"/&gt;
+        &lt;entry key="signaturePropFile" value="bob.properties"/&gt;
+        &lt;entry key="decryptionPropFile" value="bob.properties"/&gt;
+        &lt;entry key="passwordCallbackClass" value="org.jboss.test.ws.jaxws.samples.wsse.KeystorePasswordCallback"/&gt;
+      &lt;/map&gt;
+    &lt;/constructor-arg&gt;
+  &lt;/bean&gt;
+  
+  &lt;bean id="Sign_Response" class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor"&gt;
+    &lt;constructor-arg&gt;
+      &lt;map&gt;
+        &lt;entry key="action" value="Timestamp Signature Encrypt"/&gt;
+        &lt;entry key="user" value="bob"/&gt;
+        &lt;entry key="signaturePropFile" value="bob.properties"/&gt;
+        &lt;entry key="encryptionPropFile" value="bob.properties"/&gt;
+        &lt;entry key="encryptionUser" value="Alice"/&gt;
+        &lt;entry key="signatureKeyIdentifier" value="DirectReference"/&gt;
+        &lt;entry key="passwordCallbackClass" value="org.jboss.test.ws.jaxws.samples.wsse.KeystorePasswordCallback"/&gt;
+        &lt;entry key="signatureParts" value="{Element}{<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd</a>}Timestamp;{Element}{<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/soap/envelope/">http://schemas.xmlsoap.org/soap/envelope/</a>}Body"/&gt;
+        &lt;entry key="encryptionParts" value="{Element}{<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2000/09/xmldsig#">http://www.w3.org/2000/09/xmldsig#</a>}Signature;{Content}{<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/soap/envelope/">http://schemas.xmlsoap.org/soap/envelope/</a>}Body"/&gt;
+        &lt;entry key="encryptionKeyTransportAlgorithm" value="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/04/xmlenc#rsa-1_5">http://www.w3.org/2001/04/xmlenc#rsa-1_5</a>"/&gt;
+        &lt;entry key="encryptionSymAlgorithm" value="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/04/xmlenc#tripledes-cbc">http://www.w3.org/2001/04/xmlenc#tripledes-cbc</a>"/&gt;
+      &lt;/map&gt;
+    &lt;/constructor-arg&gt;
+  &lt;/bean&gt;
+  
+  &lt;jaxws:endpoint
+    id='ServiceImpl'
+    address='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://@jboss.bind.address@:8080/jaxws-samples-wsse-sign-encrypt">http://@jboss.bind.address@:8080/jaxws-samples-wsse-sign-encrypt</a>'
+    implementor='org.jboss.test.ws.jaxws.samples.wsse.ServiceImpl'&gt;
+    &lt;jaxws:invoker&gt;
+      &lt;bean class='org.jboss.wsf.stack.cxf.InvokerJSE'/&gt;
+    &lt;/jaxws:invoker&gt;
+    &lt;jaxws:outInterceptors&gt;
+        &lt;bean class="org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor"/&gt;
+        &lt;ref bean="Sign_Response"/&gt;
+    &lt;/jaxws:outInterceptors&gt;
+    &lt;jaxws:inInterceptors&gt;
+        &lt;ref bean="Sign_Request"/&gt;
+        &lt;bean class="org.apache.cxf.binding.soap.saaj.SAAJInInterceptor"/&gt;
+    &lt;/jaxws:inInterceptors&gt;
+  &lt;/jaxws:endpoint&gt;
+&lt;/beans&gt;
+</pre><p>This specifies the whole security configuration (including algorithms and elements to be signed/encrypted); moreover it references a properties file (<span class="emphasis"><em>bob.properties</em></span>) providing the keystore-related information:</p><pre class="screen">org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
+org.apache.ws.security.crypto.merlin.keystore.type=jks
+org.apache.ws.security.crypto.merlin.keystore.password=password
+org.apache.ws.security.crypto.merlin.keystore.alias=bob
+org.apache.ws.security.crypto.merlin.file=bob.jks
+</pre><p>As you can see in the <span class="emphasis"><em>jbossws-cxf.xml</em></span> file above, a keystore password callback handler is also configured; while the properties file has the password for the keystore, this callback handler is used to set password for each key (it has to match the one used when each key was imported in the store). Here's a trivial example:</p><pre class="screen"><span class="bold"><strong>package</strong></span> org.jboss.test.ws.jaxws.samples.wsse;
+ 
+<span class="bold"><strong>import</strong></span> java.io.IOException;
+<span class="bold"><strong>import</strong></span> java.util.HashMap;
+<span class="bold"><strong>import</strong></span> java.util.Map;
+ 
+<span class="bold"><strong>import</strong></span> javax.security.auth.callback.Callback;
+<span class="bold"><strong>import</strong></span> javax.security.auth.callback.CallbackHandler;
+<span class="bold"><strong>import</strong></span> javax.security.auth.callback.UnsupportedCallbackException;
+<span class="bold"><strong>import</strong></span> org.apache.ws.security.WSPasswordCallback;
+ 
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> KeystorePasswordCallback <span class="bold"><strong>implements</strong></span> CallbackHandler
+{
+   <span class="bold"><strong>private</strong></span> Map&lt;String, String&gt; passwords = <span class="bold"><strong>new</strong></span> HashMap&lt;String, String&gt;();
+ 
+   <span class="bold"><strong>public</strong></span> KeystorePasswordCallback()
+   {
+      passwords.put("alice", "password");
+      passwords.put("bob", "password");
+   }
+ 
+   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>void</strong></span> handle(Callback[] callbacks) <span class="bold"><strong>throws</strong></span> IOException, UnsupportedCallbackException
+   {
+      <span class="bold"><strong>for</strong></span> (<span class="bold"><strong>int</strong></span> i = 0; i &lt; callbacks.length; i++)
+      {
+         WSPasswordCallback pc = (WSPasswordCallback)callbacks[i];
+         String pass = passwords.get(pc.getIdentifer());
+         <span class="bold"><strong>if</strong></span> (pass != <span class="bold"><strong>null</strong></span>)
+         {
+            pc.setPassword(pass);
+            <span class="bold"><strong>return</strong></span>;
+         }
+      }
+   }
+ 
+   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>void</strong></span> setAliasPassword(String alias, String password)
+   {
+      passwords.put(alias, password);
+   }
+}
+</pre><p>On client side, you can similarly setup the interceptors programmatically; here is an excerpt of the client for the above described endpoint (of course you can also leverage a proper Spring configuration for loading an already configured CXF Bus instance):</p><pre class="screen">Endpoint cxfEndpoint = client.getEndpoint();
+Map&lt;String,Object&gt; outProps = <span class="bold"><strong>new</strong></span> HashMap&lt;String,Object&gt;();
+outProps.put("action", "Timestamp Signature Encrypt");
+outProps.put("user", "alice");
+outProps.put("signaturePropFile", "META-INF/alice.properties");
+outProps.put("signatureKeyIdentifier", "DirectReference");
+outProps.put("passwordCallbackClass", "org.jboss.test.ws.jaxws.samples.wsse.KeystorePasswordCallback");
+outProps.put("signatureParts", "{Element}{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd}Timestamp;{Element}{http://schemas.xmlsoap.org/soap/envelope/}Body");
+outProps.put("encryptionPropFile", "META-INF/alice.properties");
+outProps.put("encryptionUser", "Bob");
+outProps.put("encryptionParts", "{Element}{http://www.w3.org/2000/09/xmldsig#}Signature;{Content}{http://schemas.xmlsoap.org/soap/envelope/}Body");
+outProps.put("encryptionSymAlgorithm", "http://www.w3.org/2001/04/xmlenc#tripledes-cbc");
+outProps.put("encryptionKeyTransportAlgorithm", "http://www.w3.org/2001/04/xmlenc#rsa-1_5");
+WSS4JOutInterceptor wssOut = <span class="bold"><strong>new</strong></span> WSS4JOutInterceptor(outProps); //request
+cxfEndpoint.getOutInterceptors().add(wssOut);
+cxfEndpoint.getOutInterceptors().add(<span class="bold"><strong>new</strong></span> SAAJOutInterceptor());
+      
+Map&lt;String,Object&gt; inProps= <span class="bold"><strong>new</strong></span> HashMap&lt;String,Object&gt;();
+inProps.put("action", "Timestamp Signature Encrypt");
+inProps.put("signaturePropFile", "META-INF/alice.properties");
+inProps.put("passwordCallbackClass", "org.jboss.test.ws.jaxws.samples.wsse.KeystorePasswordCallback");
+inProps.put("decryptionPropFile", "META-INF/alice.properties");
+WSS4JInInterceptor wssIn = <span class="bold"><strong>new</strong></span> WSS4JInInterceptor(inProps); //response
+cxfEndpoint.getInInterceptors().add(wssIn);
+cxfEndpoint.getInInterceptors().add(<span class="bold"><strong>new</strong></span> SAAJInInterceptor());
+</pre><div class="variablelist"><dl><dt><span class="term"/></dt><dd/><dt><span class="term"><span class="bold"><strong>Package and deploy </strong></span></span></dt><dd/></dl></div><p>To deploy your web service endpoint, you need to package the following files along with your service implementation and wsdl contract:</p><div class="itemizedlist"><ul><li><p> the jbossws-cxf.xml descriptor </p></li><li><p> the properties file </p></li><li><p> the keystore file (if required for signature/encryption) </p></li><li><p> the keystore password callback handler class </p></li></ul></div><p>For instance, here are the archive contents for the afore mentioned signature &amp; encryption sample (POJO endpoint):</p><pre class="screen">[alessio@localhost cxf-tests]$ jar -tvf target/test-libs/jaxws-samples-wsse-sign-encrypt.war 
+   0 Tue Jun 03 19:41:26 CEST 2008 META-INF/
+ 106 Tue Jun 03 19:41:24 CEST 2008 META-INF/MANIFEST.MF
+   0 Tue Jun 03 19:41:26 CEST 2008 WEB-INF/
+   0 Tue Jun 03 19:41:26 CEST 2008 WEB-INF/classes/
+   0 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/
+   0 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/
+   0 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/
+   0 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/
+   0 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/
+   0 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/
+   0 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsse/
+1628 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsse/KeystorePasswordCallback.class
+ 364 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsse/ServiceIface.class
+ 859 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsse/ServiceImpl.class
+   0 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsse/jaxws/
+ 685 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsse/jaxws/SayHello.class
+1049 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/org/jboss/test/ws/jaxws/samples/wsse/jaxws/SayHelloResponse.class
+2847 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/jbossws-cxf.xml
+   0 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/wsdl/
+1575 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/wsdl/SecurityService.wsdl
+ 641 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/wsdl/SecurityService_schema1.xsd
+1820 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/bob.jks
+ 311 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/classes/bob.properties
+ 573 Tue Jun 03 19:41:24 CEST 2008 WEB-INF/web.xml
+</pre><p>On client side, instead, you only need the properties and keystore files (assuming you setup the interceptors programmatically).</p><p>Check that JBossWS-CXF is installed on your current JBoss Application Server, deploy and test your WS-Security-enabled application.</p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-StackCXFUserGuide_WSSecurity_Policies"/>3.2.4.2. WS-Security Policies</h4></div></div></div><p> </p><p>Starting from JBossWS-CXF 3.1.1, WS-Security Policy implementation is available and can be used to configure WS-Security more easily.</p><p>Please refer to the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cwiki.apache.org/CXF20DOC/ws-securitypolicy.html">Apache CXF documentation</a>; basically instead of manually configuring interceptors in the client or through jbossws-cxf.xml descriptor, you simply provide the right policies in the WSDL contract.</p><pre class="screen">  ...
+  &lt;binding name="SecurityServicePortBinding" type="tns:ServiceIface"&gt;
+    &lt;wsp:PolicyReference URI="#SecurityServiceSignPolicy"/&gt;
+  ...
+  &lt;wsp:Policy wsu:Id="SecurityServiceSignPolicy"
+    xmlns:sp="<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">http://schemas.xmlsoap.org/ws/2005/07/securitypolicy</a>"&gt;
+    &lt;wsp:ExactlyOne&gt;
+        &lt;wsp:All&gt;
+            &lt;sp:AsymmetricBinding xmlns:sp='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">http://schemas.xmlsoap.org/ws/2005/07/securitypolicy</a>'&gt;
+                &lt;wsp:Policy&gt;
+                    &lt;sp:InitiatorToken&gt;
+                        &lt;wsp:Policy&gt;
+                            &lt;sp:X509Token sp:IncludeToken='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient</a>'&gt;
+                                &lt;wsp:Policy&gt;
+                                    &lt;sp:WssX509V3Token10 /&gt;
+                                &lt;/wsp:Policy&gt;
+                            &lt;/sp:X509Token&gt;
+                        &lt;/wsp:Policy&gt;
+                    &lt;/sp:InitiatorToken&gt;
+                    &lt;sp:RecipientToken&gt;
+                        &lt;wsp:Policy&gt;
+                            &lt;sp:X509Token sp:IncludeToken='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/Always">http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/Always</a>'&gt;
+                                &lt;wsp:Policy&gt;
+                                    &lt;sp:WssX509V3Token10 /&gt;
+                                &lt;/wsp:Policy&gt;
+                            &lt;/sp:X509Token&gt;
+                        &lt;/wsp:Policy&gt;
+                    &lt;/sp:RecipientToken&gt;
+                    &lt;sp:AlgorithmSuite&gt;
+                        &lt;wsp:Policy&gt;
+                            &lt;sp:Basic256 /&gt;
+                        &lt;/wsp:Policy&gt;
+                    &lt;/sp:AlgorithmSuite&gt;
+                    &lt;sp:Layout&gt;
+                        &lt;wsp:Policy&gt;
+                            &lt;sp:Strict /&gt;
+                        &lt;/wsp:Policy&gt;
+                    &lt;/sp:Layout&gt;
+                    &lt;sp:OnlySignEntireHeadersAndBody /&gt;
+                &lt;/wsp:Policy&gt;
+            &lt;/sp:AsymmetricBinding&gt;
+            &lt;sp:Wss10 xmlns:sp='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">http://schemas.xmlsoap.org/ws/2005/07/securitypolicy</a>'&gt;
+                &lt;wsp:Policy&gt;
+                    &lt;sp:MustSupportRefEmbeddedToken /&gt;
+                &lt;/wsp:Policy&gt;
+            &lt;/sp:Wss10&gt;
+            &lt;sp:SignedParts xmlns:sp='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">http://schemas.xmlsoap.org/ws/2005/07/securitypolicy</a>'&gt;
+                &lt;sp:Body /&gt;
+            &lt;/sp:SignedParts&gt;
+        &lt;/wsp:All&gt;
+    &lt;/wsp:ExactlyOne&gt;
+  &lt;/wsp:Policy&gt;
+  ...
+</pre><p>Just few properties are also required to be set either in the message context or in the jbossws-cxf.xml descriptor.</p><pre class="screen">((BindingProvider)proxy).getRequestContext().put(SecurityConstants.CALLBACK_HANDLER, <span class="bold"><strong>new</strong></span> KeystorePasswordCallback());
+((BindingProvider)proxy).getRequestContext().put(SecurityConstants.SIGNATURE_PROPERTIES, Thread.currentThread().getContextClassLoader().getResource("META-INF/alice.properties"));
+((BindingProvider)proxy).getRequestContext().put(SecurityConstants.ENCRYPT_PROPERTIES, Thread.currentThread().getContextClassLoader().getResource("META-INF/alice.properties"));
+</pre><pre class="screen">&lt;beans
+  xmlns='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:xsi='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>'
+  xmlns:beans='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:jaxws='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>'
+  xsi:schemaLocation='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/core">http://cxf.apache.org/core</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/core.xsd">http://cxf.apache.org/schemas/core.xsd</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">http://www.springframework.org/schema/beans/spring-beans-2.0.xsd</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/jaxws.xsd">http://cxf.apache.org/schemas/jaxws.xsd</a>'&gt;
+  
+  &lt;jaxws:endpoint
+    id='ServiceImpl'
+    address='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://@jboss.bind.address@:8080/jaxws-samples-wssePolicy-sign">http://@jboss.bind.address@:8080/jaxws-samples-wssePolicy-sign</a>'
+    implementor='org.jboss.test.ws.jaxws.samples.wssePolicy.ServiceImpl'&gt;
+    
+    &lt;jaxws:properties&gt;
+       &lt;entry key="ws-security.signature.properties" value="bob.properties"/&gt;
+       &lt;entry key="ws-security.encryption.properties" value="bob.properties"/&gt;
+       &lt;entry key="ws-security.callback-handler" value="org.jboss.test.ws.jaxws.samples.wssePolicy.KeystorePasswordCallback"/&gt;
+    &lt;/jaxws:properties&gt;
+  &lt;/jaxws:endpoint&gt;
+&lt;/beans&gt;
+</pre><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-StackCXFUserGuide_Authentication_and_authorization"/>3.2.4.3. Authentication and authorization</h4></div></div></div><p> </p><p>The Username Token Profile can of course be used to provide client's credentials to the target endpoint. Starting from JBossWS-CXF 3.3.0 (which includes Apache CXF 2.2.8), the username token information can be used for authentication and authorization on JBoss AS (JAAS integration).</p><p>On server side, you need to specify what follows (for instance using a <span class="emphasis"><em>jbossws-cxf.xml</em></span> descriptor):</p><div class="itemizedlist"><ul><li><p>an interceptor for performing authentication and populating a valid SecurityContext; the provided interceptor should extend org.apache.cxf.ws.security.wss4j.AbstractUsernameTokenAuthenticatingInterceptor, in particular JBossWS integration comes with <span class="emphasis"><em>org.jboss.wsf.stack.cxf.security.authentication.SubjectCreatingInterceptor</em></span> for this;</p></li><li><p>an interceptor for performing authorization; CXF requires that to extend org.apache.cxf.interceptor.security.AbstractAuthorizingInInterceptor, for instance the <span class="emphasis"><em>SimpleAuthorizingInterceptor</em></span> can be used for simply mapping endpoint operations to allowed roles.</p></li></ul></div><pre class="screen">&lt;beans
+  xmlns='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:xsi='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.w3.org/2001/XMLSchema-instance">http://www.w3.org/2001/XMLSchema-instance</a>'
+  xmlns:beans='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>'
+  xmlns:jaxws='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>'
+  xmlns:util='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/util">http://www.springframework.org/schema/util</a>'
+  xsi:schemaLocation='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/core">http://cxf.apache.org/core</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/core.xsd">http://cxf.apache.org/schemas/core.xsd</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/util">http://www.springframework.org/schema/util</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/util/spring-util-2.0.xsd">http://www.springframework.org/schema/util/spring-util-2.0.xsd</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">http://www.springframework.org/schema/beans/spring-beans-2.0.xsd</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/jaxws">http://cxf.apache.org/jaxws</a>
+    <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/schemas/jaxws.xsd">http://cxf.apache.org/schemas/jaxws.xsd</a>'&gt;
+  
+  &lt;bean id="SecurityContextIn"
+     class="org.jboss.wsf.stack.cxf.security.authentication.SubjectCreatingInterceptor"&gt;
+    &lt;constructor-arg&gt;
+      &lt;map&gt;
+        &lt;entry key="action" value="UsernameToken"/&gt; 
+      &lt;/map&gt;
+    &lt;/constructor-arg&gt;
+  &lt;/bean&gt;
+ 
+  &lt;util:map id="methodPermissions"&gt;
+     &lt;entry key="sayHello" value="friend"/&gt; 
+     &lt;entry key="greetMe" value="snoopies"/&gt; 
+  &lt;/util:map&gt;
+ 
+  &lt;bean id="AuthorizeIn"
+    class="org.apache.cxf.interceptor.security.SimpleAuthorizingInterceptor"&gt;
+   &lt;property name="methodRolesMap" ref="methodPermissions"/&gt; 
+  &lt;/bean&gt;
+  
+  &lt;jaxws:endpoint
+    id='ServiceImpl'
+    address='<a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://@jboss.bind.address@:8080/jaxws-samples-wsse-username-authorize">http://@jboss.bind.address@:8080/jaxws-samples-wsse-username-authorize</a>'
+    implementor='org.jboss.test.ws.jaxws.samples.wsse.ServiceImpl'&gt;
+    &lt;jaxws:inInterceptors&gt;
+        &lt;ref bean="SecurityContextIn"/&gt;
+        &lt;ref bean="AuthorizeIn"/&gt;
+        &lt;bean class="org.apache.cxf.binding.soap.saaj.SAAJInInterceptor"/&gt;
+    &lt;/jaxws:inInterceptors&gt;
+  &lt;/jaxws:endpoint&gt;
+&lt;/beans&gt;</pre><p> </p><p>Authentication and authorization will simply be delegated to the security domain configured for the endpoint. Of course you can specify the login module you prefer for that security domain (refer the application server / security documentation for that).</p><p> </p><p>On client side, the username is provided through API (or a custom Spring configuration used to load the Bus):</p><p> </p><pre class="screen">Endpoint cxfEndpoint = client.getEndpoint();
+Map&lt;String, Object&gt; outProps = <span class="bold"><strong>new</strong></span> HashMap&lt;String, Object&gt;();
+outProps.put("action", "UsernameToken");
+outProps.put("user", username);
+outProps.put("passwordType", "PasswordText");
+outProps.put("passwordCallbackClass", "org.jboss.test.ws.jaxws.samples.wsse.UsernamePasswordCallback");
+WSS4JOutInterceptor wssOut = <span class="bold"><strong>new</strong></span> WSS4JOutInterceptor(outProps); //request
+cxfEndpoint.getOutInterceptors().add(wssOut);
+cxfEndpoint.getOutInterceptors().add(<span class="bold"><strong>new</strong></span> SAAJOutInterceptor());
+</pre><p> </p><p>The password instead is provided through a password callback handler that needs to implement <span class="emphasis"><em>javax.security.auth.callback.CallbackHandler</em></span>, similarly to the keystore's password callback handler.</p><p> </p><p>If you're running an older JBossWS-CXF version, or you're not interested in the the application server auth integration, you can use a password callback handler on server side too, configured through a WSS4JInInterceptor:</p><p> </p><pre class="screen">&lt;bean id="UsernameToken_Request"&gt;
+  &lt;constructor-arg&gt;
+    &lt;map&gt;
+      &lt;entry key="action" value="UsernameToken"/&gt; 
+      &lt;entry key="passwordCallbackClass" value="org.jboss.test.ws.jaxws.samples.wsse.ServerUsernamePasswordCallback"/&gt; 
+    &lt;/map&gt;
+  &lt;/constructor-arg&gt;
+&lt;/bean&gt;
+</pre><p> </p><pre class="screen"><span class="bold"><strong>package</strong></span> org.jboss.test.ws.jaxws.samples.wsse;
+ 
+<span class="bold"><strong>import</strong></span> java.io.IOException;
+<span class="bold"><strong>import</strong></span> javax.security.auth.callback.CallbackHandler;
+<span class="bold"><strong>import</strong></span> javax.security.auth.callback.UnsupportedCallbackException;
+<span class="bold"><strong>import</strong></span> org.apache.ws.security.WSPasswordCallback;
+ 
+<span class="bold"><strong>public</strong></span> <span class="bold"><strong>class</strong></span> ServerUsernamePasswordCallback <span class="bold"><strong>implements</strong></span> CallbackHandler
+{
+   <span class="bold"><strong>public</strong></span> <span class="bold"><strong>void</strong></span> handle(Callback[] callbacks) <span class="bold"><strong>throws</strong></span> IOException, UnsupportedCallbackException
+   {
+      WSPasswordCallback pc = (WSPasswordCallback)callbacks[0];
+      <span class="bold"><strong>if</strong></span> (!("kermit".equals(pc.getIdentifier()) &amp;&amp; "thefrog".equals(pc.getPassword())))
+         <span class="bold"><strong>throw</strong></span> <span class="bold"><strong>new</strong></span> SecurityException("User '" + pc.getIdentifier() + "' with password '" + pc.getPassword() + "' not allowed.");
+   }
+}
+</pre></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h4 class="title"><a id="JBossWS-StackCXFUserGuide_Further_information"/>3.2.4.4. Further information</h4></div></div></div><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Samples </strong></span></span></dt><dd/></dl></div><p>The JBossWS-CXF source distribution comes with some samples using X.509 certificate signature and encryption as well as Username Token Profile. You can find them in package <span class="emphasis"><em>org.jboss.test.ws.jaxws.samples.wsse</em></span> .</p><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Crypto algorithms </strong></span></span></dt><dd/></dl></div><p>When requiring encryption, you might need to install an additional JCE provider supporting the crypto algorithms Apache CXF uses. This usually means the Bouncy Castle provider need to be configured in your JRE. Please refer the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://community.jboss.org/docs/DOC-13532">Native stack user</a> guide for further information about this.</p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h3 class="title"><a id="JBossWS-StackCXFUserGuide_JMS_transport"/>3.2.5. JMS transport</h3></div></div></div><p><a href="chap_JBossWS-CXFJMStransporttutorial.html" title="Chapter 14. JBossWS-CXFJMStransporttutorial">Here</a> is a tutorial on how to deploy and invoke a JMS endpoint using JBossWS-CXF.</p><p> </p></div></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-StackCXFUserGuide_HTTP_server_transport_setup"/>3.3. HTTP server transport setup</h2></div></div></div><p>Apache CXF comes with pluggable transport layers, allowing different transport modules to be used.</p><p> </p><p>The JBossWS-CXF integration leverages CXF servlet transport for the deployment of endpoints on top of the running JBoss Application Server.</p><p> </p><p>However, when users directly leverage the JAXWS <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://download.oracle.com/javase/6/docs/api/javax/xml/ws/Endpoint.html#publish%28java.lang.String%29">Endpoint.publish(String s)</a> API, endpoints are expected to be deployed on a standalone http server started just for serving the specified endpoint. Apache CXF currently defaults to using the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://jetty.codehaus.org/jetty/">Jetty</a> based http transport. Starting <span class="emphasis"><em>from release 3.4.0</em></span>, the JBossWS-CXF integration instead uses a different http transport module based on the <a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://download.oracle.com/javase/6/docs/jre/api/net/httpserver/spec/com/sun/net/httpserver/package-summary.html">http server</a> embedded in JDK6 distributions. Thanks to Apache CXF transport pluggability, users can still change the transport they want to use in this case by simply replacing the <span class="emphasis"><em>jbossws-cxf-transports-httpserver.jar</em></span> library with another http transport one, for instance the <span class="emphasis"><em>cxf-rt-transports-http-jetty.jar</em></span>.</p><p> </p></div><div class="section" lang="en-US"><div class="titlepage"><div><div><h2 class="title"><a id="JBossWS-StackCXFUserGuide_SOAP_Message_Logging"/>3.4. SOAP Message Logging</h2></div></div></div><p>In the jbossws-cxf-client.jar[*] file you will find META-INF/cxf/cxf-extension-jbossws.xml, which contains the JBossWS extensions to the Apache CXF stack. In that file you need to enable</p><pre class="screen">  &lt;cxf:bus&gt;
+    &lt;cxf:inInterceptors&gt;
+      &lt;ref bean="logInbound"/&gt;
+    &lt;/cxf:inInterceptors&gt;
+    &lt;cxf:outInterceptors&gt;
+      &lt;ref bean="logOutbound"/&gt;
+    &lt;/cxf:outInterceptors&gt;
+    &lt;cxf:inFaultInterceptors&gt;
+      &lt;ref bean="logOutbound"/&gt;
+    &lt;/cxf:inFaultInterceptors&gt;
+  &lt;/cxf:bus&gt;
+</pre><p> </p><p>Once you've uncommented the cxf-extension-jbossws.xml contents, you need to re-pack the jar/zip.</p><p> </p><p>[*] The cxf-extension-jbossws.xml is available from version 3.2.2; if you don't have that file, you can manually add it and link it in cxf.extensions file.</p><p> </p><p>Finally, please note that logging can be enabled in many ways with Apache CXF, see the following documentation pages for instance:</p><div class="itemizedlist"><ul><li><p><a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/docs/configuration.html">http://cxf.apache.org/docs/configuration.html</a></p></li><li><p><a xmlns:xlink="http://www.w3.org/1999/xlink" href="http://cxf.apache.org/docs/debugging-and-logging.html">http://cxf.apache.org/docs/debugging-and-logging.html</a></p></li></ul></div></div></div><ul class="docnav"><li class="previous"><a accesskey="p" href="chap_JBossWS-UserGuide.html"><strong>Prev</strong>Chapter 2. JBossWS-UserGuide</a></li><li class="up"><a accesskey="u" href="#"><strong>Top of page</strong></a></li><li class="home"><a accesskey="h" href="index.html"><strong>Front page</strong></a></li><li class="next"><a accesskey="n" href="chap_JBossWS-JAX-WSTools.html"><strong>Next</strong>Chapter 4. JBossWS-JAX-WSTools</a></li></ul></body></html>
