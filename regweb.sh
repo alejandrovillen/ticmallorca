@@ -11,16 +11,17 @@
 	source /etc/environment
 
 # Directory
-	mkdir /opt/regweb
-	mkdir $PACKAGES
-	mkdir $PACKAGES/RegWeb
-	mkdir $PACKAGES/RegWeb/regweb
-	mkdir $PACKAGES/JBossBug
-	mkdir $PACKAGES/ColorJUnit
-	mkdir $PACKAGES/Postgresql_driver
-	mkdir $JBOSS
-	mkdir $JBOSS/server/default/deployregweb
-	mkdir /usr/lib/jvm
+	mkdir -p /opt/regweb
+	mkdir -p $PACKAGES
+	mkdir -p $PACKAGES/RegWeb
+	mkdir -p $PACKAGES/RegWeb/regweb
+	mkdir -p $PACKAGES/JBossBug
+	mkdir -p $PACKAGES/ColorJUnit
+	mkdir -p $PACKAGES/Postgresql_driver
+	mkdir -p $JBOSS
+	mkdir -p $JBOSS/server/default/deployregweb
+	mkdir -p $JBOSS/regweb_files
+	mkdir -p /usr/lib/jvm
 
 
 # Packages
@@ -79,5 +80,28 @@
 		cp $TICPACK/App/regweb/war-deployers-jboss-beans.xml $JBOSS/server/default/deployers/jbossweb.deployer/META-INF/
 	## Parameters Size
 		cp $TICPACK/App/regweb/properties-service.xml $JBOSS/server/default/deploy/
+	## File settings
+		chmod 777 $JBOSS/regweb_files
+		cp $TICPACK/App/regweb/regweb3-properties-service.xml $JBOSS/server/default/deployregweb/
+	## User Auth
+		cp $TICPACK/App/regweb/login-config.xml $JBOSS/server/default/conf/
+	## Seycon DataSource
+		cp $PACKAGES/RegWeb/regweb/scripts/datasource/seycon-ds.xml $JBOSS/server/default/deployregweb/
+	## Regweb3 Datasource
+		cp $PACKAGES/RegWeb/regweb/scripts/datasource/regweb3-ds.xml $JBOSS/server/default/deployregweb/
+	## Binary Copy
+		cp $PACKAGES/RegWeb/regweb/regweb3.ear $JBOSS/server/default/deployregweb
+	## Plugins 
+		### All changes over regweb3-properties-service.xml
+		### DATABASE
+		### LDAP
+		### FILESYSTEM - CUSTODIA
+		### SCANER
+		### WEB TWAIN
+
+# Services
+	## JBOSS
+		cp $TICPACK/App/regweb/jboss /etc/init.d/	
 
 
+	
