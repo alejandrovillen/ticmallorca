@@ -1,5 +1,4 @@
 
-
 # RegWeb3 installation
 
 #Dependences
@@ -19,7 +18,8 @@
 	mkdir $PACKAGES/JBossBug
 	mkdir $PACKAGES/ColorJUnit
 	mkdir $PACKAGES/Postgresql_driver
-	mkdir /usr/local/jboss-as
+	mkdir $JBOSS
+	mkdir $JBOSS/server/default/deployregweb
 	mkdir /usr/lib/jvm
 
 
@@ -63,3 +63,11 @@
 		cd $PACKAGES/Postgresql_driver
 		wget http://jdbc.postgresql.org/download/postgresql-8.4-703.jdbc3.jar
 		cp -r $PACKAGES/Postgresql_driver/postgresql-8.4-703.jdbc3.jar -P $JBOSS/server/default/lib/
+
+# Settings
+	## CXF content and config
+		cp $TICPACK/App/regweb/ant.properties $JBOSS
+	## Update build-testsuite.xml
+		cp $TICPACK/App/regweb/build-testsuite.xml $JBOSS/tests/ant-import/
+	## Deploy folder
+		cp $TICPACK/App/regweb/profile.xml $JBOSS/server/default/conf/bootstrap/
