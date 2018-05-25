@@ -27,7 +27,6 @@
 
 # Packages
 	cd $PACKAGES
-	sudo git clone https://github.com/alejandrovillen/ticmallorca.git
 	## JDK
 		cp -R $TICPACK/JDK/jdk1.7.0_80 /usr/lib/jvm/
 		# Update java versions (https://gist.github.com/senthil245/6093389)
