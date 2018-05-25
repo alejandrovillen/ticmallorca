@@ -100,8 +100,14 @@
 		### WEB TWAIN
 
 # Services
-	## JBOSS
-		cp $TICPACK/App/regweb/jboss /etc/init.d/	
+	## JBOSS Service
+		cp $TICPACK/App/regweb/jboss /etc/init.d/
+		chmod 777 /etc/init.d/jboss
+		update-rc.d jboss defaults
+		update-rc.d jboss enable
+		/etc/init.d/jboss start
+	## 
+
 
 
 	
