@@ -2,29 +2,47 @@
 <server>
     <mbean code="org.jboss.varia.property.SystemPropertiesService" name="jboss:type=Service,name=RegwebSystemProperties">
         <attribute name="Properties">
-            <!-- Others -->
-            es.caib.regweb3.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-            # es.caib.regweb3.hibernate.query.substitutions=?
+            <!-- iscaib -->
+            es.caib.regweb3.iscaib=false
+            <!-- preregistre -->
+            es.caib.regweb3.preregistre=http://www.caib.es
+            <!-- defaultlanguage -->
+            es.caib.regweb3.defaultlanguage=ca
+            <!-- archivos.path -->
+            es.caib.regweb3.archivos.path=/usr/local/jboss-as/regweb_files
+            <!-- showtimestamp -->
+            es.caib.regweb3.showtimestamp=false
+            <!-- url de WS SIR -->
+            es.caib.regweb3.sir.serverbase=http://localhost:8380/services
+
+            <!-- DIR3Caib server-->
             es.caib.regweb3.dir3caib.server=http://gmpreregweb1.cilma.apl:8080/dir3caib
-            es.caib.regweb3.dir3caib.username=****
-            es.caib.regweb3.dir3caib.password=****
+            es.caib.regweb3.dir3caib.username=private.RW_USER
+            es.caib.regweb3.dir3caib.password=private.RW.PASSWORD
+
+            <!-- DIR3Caib configs-->
+            es.caib.dir3caib.development=false
+            es.caib.dir3caib.showtimestamp="true"
+            es.caib.dir3caib.archivos.path=/usr/local/jboss-as/dir3caib_files
+            es.caib.dir3caib.catalogo.endpoint=http://pre-dir3ws.redsara.es/directorio/services/SC21CT_VolcadoCatalogos
+            es.caib.dir3caib.unidad.endpoint=http://pre-dir3ws.redsara.es/directorio/services/SD01UN_DescargaUnidades
+            es.caib.dir3caib.oficina.endpoint=http://pre-dir3ws.redsara.es/directorio/services/SD02OF_DescargaOficinas
+            es.caib.dir3caib.dir3ws.user=private.DIR3_WS_USER
+            es.caib.dir3caib.dir3ws.pass=private.DIR3_WS_PASS
+            es.caib.dir3caib.cronExpression=0 0 3 1/1 * ? *
+            es.caib.dir3caib.busqueda.administracion=2
+            es.caib.dir3caib.busqueda.comunidad=4
+            <!-- SIR MaxSizeEachAnex-->
+
+
+            <!-- DDBB dialect-->
+            es.caib.regweb3.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+            es.caib.regweb3.hibernate.query.substitutions=true 1, false 0
+
+            <!-- Others -->
             es.caib.regweb3.sir.usedirectapi=false
             es.caib.regweb3.maxuploadsizeinbytes=104857600 
             # es.caib.regweb3.scan_default_validez_documento=?
-
-            <!-- General -->
-            es.caib.regweb3.defaultlanguage=ca
-            es.caib.regweb3.showtimestamp=false
-
-            <!-- Caib -->
-            es.caib.regweb3.iscaib=false
-            es.caib.regweb3.preregistre=http://www.caib.es
-
-            <!-- Url de WS SIR -->
-            es.caib.regweb3.sir.serverbase=http://localhost:8380/services
-
-            <!-- Directorio base para los archivos generales -->
-            es.caib.regweb3.archivos.path=/usr/local/jboss-as/regweb_files
 
             <!-- ======== PLUGIN USER-INFORMATION - DATABASE ======= -->
             es.caib.regweb3.userinformationplugin=org.fundaciobit.plugins.userinformation.database.DataBaseUserInformationPlugin
