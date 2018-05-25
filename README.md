@@ -1,11 +1,25 @@
 # TIC Mallorca
 
+---
+## ![Logo](https://github.com/GovernIB/maven/raw/binaris/portafib/projectinfo_Attachments/icon.jpg) PortaFIB
 
+### Requirements
+```
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=16.04
+DISTRIB_CODENAME=xenial
+DISTRIB_DESCRIPTION="Ubuntu 16.04.4 LTS"
+```
+### Install,  all as root ;)
+```sh
+apt-get install git
+git clone https://github.com/alejandrovillen/ticmallorca.git
+cd ticmallorca
+./portafib.sh
+```
 
-## PortaFIB
-
-----
-## RegWeb
+---
+## ![Logo](https://github.com/GovernIB/maven/raw/binaris/registre/projectinfo_Attachments/icon.jpg) RegWeb
 ### Requirements
 ```
 DISTRIB_ID=Ubuntu
