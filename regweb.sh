@@ -1,4 +1,4 @@
-
+#!/bin/bash
 
 # RegWeb3 installation
 
@@ -10,6 +10,7 @@
 	echo 'PACKAGES="/opt/regweb/packages"' | sudo tee --append /etc/environment
 	echo 'TICPACK="/opt/regweb/packages/ticmallorca"' | sudo tee --append /etc/environment
 	source /etc/environment
+
 
 # Directory
 	mkdir -p /opt/regweb
