@@ -51,8 +51,6 @@
 		read -p "Press to install RegWeb3"
 		cd $PACKAGES/RegWeb
 		wget https://github.com/GovernIB/registre/releases/download/registre-3.0.9/release-regweb3-3.0.9.zip
-		wget https://github.com/GovernIB/registre/archive/registre-3.0.9.zip
-		wget https://github.com/GovernIB/registre/archive/registre-3.0.9.tar.gz
 		unzip release-regweb3-3.0.9.zip
 		cp -r ./release-regweb3-3.0.9/* ./regweb
 		cp ./regweb/regweb3.ear $JBOSS/server/default/deployregweb
