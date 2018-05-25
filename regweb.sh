@@ -26,6 +26,7 @@
 	mkdir -p $TICPACK
 	mkdir -p $JBOSS
 	mkdir -p $JBOSS/server/default/deployregweb
+	mdkir -p $JBOSS/server/default/lib/
 	mkdir -p $JBOSS/regweb_files
 	mkdir -p /usr/lib/jvm
 
@@ -53,6 +54,7 @@
 		wget https://github.com/GovernIB/registre/archive/registre-3.0.9.zip
 		wget https://github.com/GovernIB/registre/archive/registre-3.0.9.tar.gz
 		unzip release-regweb3-3.0.9.zip
+
 		cp -r ./release-regweb3-3.0.9/* ./regweb
 	## JBoss 5.1.0 GA
 		read -p "Press to install JBoss 5.1.0 GA"
@@ -88,7 +90,7 @@
 	## Deploy folder
 		cp $TICPACK/App/regweb/profile.xml $JBOSS/server/default/conf/bootstrap/
 	## Public ports and upgrade memory size
-		cp $TICPACK/App/regweb/run.config $JBOSS/bin/
+		cp $TICPACK/App/regweb/run.conf $JBOSS/bin/
 	## MultiDatasources
 		cp $TICPACK/App/regweb/jbossts-properties.xml $JBOSS/server/default/conf/
 	## Auth Basic
