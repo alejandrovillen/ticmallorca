@@ -54,8 +54,8 @@
 		wget https://github.com/GovernIB/registre/archive/registre-3.0.9.zip
 		wget https://github.com/GovernIB/registre/archive/registre-3.0.9.tar.gz
 		unzip release-regweb3-3.0.9.zip
-
 		cp -r ./release-regweb3-3.0.9/* ./regweb
+		cp ./regweb/regweb3.ear $JBOSS/server/default/deployregweb
 	## JBoss 5.1.0 GA
 		read -p "Press to install JBoss 5.1.0 GA"
 		cp -r $TICPACK/JBoss/* $JBOSS
