@@ -25,7 +25,9 @@
 	mkdir -p $JBOSS/regweb_files
 	mkdir -p /usr/lib/jvm
 
-
+# Init
+	mv ./dist/* $TICPACK
+	
 # Packages
 	cd $PACKAGES
 	## JDK
