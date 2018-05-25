@@ -15,7 +15,7 @@ DISTRIB_DESCRIPTION="Ubuntu 16.04.4 LTS"
 apt-get install git
 git clone https://github.com/alejandrovillen/ticmallorca.git
 cd ticmallorca
-./portafib.sh
+sh ./portafib.sh
 ```
 
 ---
@@ -32,7 +32,7 @@ DISTRIB_DESCRIPTION="Ubuntu 16.04.4 LTS"
 apt-get install git
 git clone https://github.com/alejandrovillen/ticmallorca.git
 cd ticmallorca
-./regweb.sh
+sh ./regweb.sh
 ```
 
 
