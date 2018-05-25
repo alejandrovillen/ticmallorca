@@ -98,6 +98,11 @@
 		### FILESYSTEM - CUSTODIA
 		### SCANER
 		### WEB TWAIN
+	## Postgresql Config
+		cp $TICPACK/Databases/postgresql/postgresql.conf /etc/postgresql/9.5/main/
+		cp $TICPACK/Databases/postgresql/pg_hba.conf /etc/postgresql/9.5/main/
+		service postgresql stop
+		service postgresql start
 
 # Services
 	## JBOSS Service
