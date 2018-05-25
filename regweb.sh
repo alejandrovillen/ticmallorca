@@ -19,6 +19,7 @@
 	mkdir -p $PACKAGES/JBossBug
 	mkdir -p $PACKAGES/ColorJUnit
 	mkdir -p $PACKAGES/Postgresql_driver
+	mkdir -p $TICPACK
 	mkdir -p $JBOSS
 	mkdir -p $JBOSS/server/default/deployregweb
 	mkdir -p $JBOSS/regweb_files
