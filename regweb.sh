@@ -102,9 +102,9 @@
 	## User Auth
 		cp $TICPACK/App/regweb/login-config.xml $JBOSS/server/default/conf/
 	## Seycon DataSource
-		cp $PACKAGES/RegWeb/regweb/scripts/datasource/seycon-ds.xml $JBOSS/server/default/deployregweb/
+		cp $TICPACK/App/regweb/seycon-ds.xml $JBOSS/server/default/deployregweb/
 	## Regweb3 Datasource
-		cp $PACKAGES/RegWeb/regweb/scripts/datasource/regweb3-ds.xml $JBOSS/server/default/deployregweb/
+		cp $TICPACK/App/regweb/regweb3-ds.xml $JBOSS/server/default/deployregweb/
 	## Binary Copy
 		cp $PACKAGES/RegWeb/regweb/regweb3.ear $JBOSS/server/default/deployregweb
 	## Plugins 
@@ -119,12 +119,12 @@
 		cp $TICPACK/Databases/postgresql/pg_hba.conf /etc/postgresql/9.5/main/
 		service postgresql restart
 	## Postgres Schema and data from Seycon
-		read -p "Press to configure settings"
+		read -p "Press to create database Seycon"
 		psql -U postgres -a -f $TICPACK/Databases/seycon/init.sql
 		psql -U postgres -a -f $TICPACK/Databases/seycon/seycon_schema.sql
 		psql -U postgres -a -f $TICPACK/Databases/seycon/seycon_data_example.sql
 	## Postgres Schema and data from Regweb
-		read -p "Press to configure settings"
+		read -p "Press to create database RegWeb"
 		psql -U postgres -a -f $TICPACK/Databases/regweb/init.sql
 		psql -U postgres -a -f $PACKAGES/RegWeb/regweb/scripts/bbdd/postgresql/regweb3_create_schema.sql
 		psql -U postgres -a -f $PACKAGES/RegWeb/regweb/scripts/bbdd/postgresql/regweb3_create_data.sql
