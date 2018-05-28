@@ -117,8 +117,17 @@
 	## Postgresql Config
 		cp $TICPACK/Databases/postgresql/postgresql.conf /etc/postgresql/9.5/main/
 		cp $TICPACK/Databases/postgresql/pg_hba.conf /etc/postgresql/9.5/main/
-		service postgresql stop
-		service postgresql start
+		service postgresql restart
+	## Postgres Schema and data from Seycon
+		read -p "Press to configure settings"
+		psql -U postgres -a -f $TICPACK/Databases/seycon/init.sql
+		psql -U postgres -a -f $TICPACK/Databases/seycon/seycon_schema.sql
+		psql -U postgres -a -f $TICPACK/Databases/seycon/seycon_data_example.sql
+	## Postgres Schema and data from Regweb
+		read -p "Press to configure settings"
+		psql -U postgres -a -f $TICPACK/Databases/regweb/init.sql
+		psql -U postgres -a -f $PACKAGES/RegWeb/regweb/scripts/bbdd/postgresql/regweb3_create_schema.sql
+		psql -U postgres -a -f $PACKAGES/RegWeb/regweb/scripts/bbdd/postgresql/regweb3_create_data.sql
 
 # Services
 	## JBOSS Service
