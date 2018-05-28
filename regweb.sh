@@ -26,7 +26,7 @@
 	mkdir -p $TICPACK
 	mkdir -p $JBOSS
 	mkdir -p $JBOSS/server/default/deployregweb
-	mdkir -p $JBOSS/server/default/lib/
+	mkdir -p $JBOSS/server/default/lib/
 	mkdir -p $JBOSS/regweb_files
 	mkdir -p $JBOSS/dir3caib_files
 	mkdir -p /usr/lib/jvm
