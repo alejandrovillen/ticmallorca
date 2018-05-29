@@ -51,8 +51,6 @@
 	## JBoss 5.1.0 GA
 		read -p "Press to install JBoss 5.1.0 GA"
 		cp -r $TICPACK/JBoss/* $JBOSS
-		cd $JBOSS
-		ant deploy-jboss510
 	## JBoss Bug Fix
 		read -p "Press to install JBoss Fix"
 		cd $PACKAGES/JBossBug
@@ -88,6 +86,9 @@
 		cp $TICPACK/App/regweb/ant.properties $JBOSS
 	## Update build-testsuite.xml
 		cp $TICPACK/App/regweb/build-testsuite.xml $JBOSS/tests/ant-import/
+	## Deploy ant
+		cd $JBOSS
+		ant deploy-jboss510
 	## Deploy folder
 		cp $TICPACK/App/regweb/profile.xml $JBOSS/server/default/conf/bootstrap/
 	## Public ports and upgrade memory size
