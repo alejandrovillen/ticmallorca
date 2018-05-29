@@ -130,6 +130,7 @@ $Revision: 87078 $
   <application-policy name = "seycon">
 		<authentication>
 			<!-- DATABASE -->
+
 			<login-module code="org.jboss.security.auth.spi.DatabaseServerLoginModule" flag="sufficient">
         <module-option name="dsJndiName">java:/es.caib.seycon.db.wl</module-option>
         <module-option name="principalsQuery">
