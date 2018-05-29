@@ -156,11 +156,11 @@ $Id: war-deployers-jboss-beans.xml 88877 2009-05-14 15:36:29Z alesj $
       <property name="authenticators">
          <map class="java.util.Properties" keyClass="java.lang.String" valueClass="java.lang.String">
             <entry>
-	           <key>WSBASIC</key>
-	           <value>org.apache.catalina.authenticator.BasicAuthenticator</value>
-	        </entry>
-            <entry>
                <key>BASIC</key>
+               <value>org.apache.catalina.authenticator.BasicAuthenticator</value>
+            </entry>
+            <entry>
+               <key>WSBASIC</key>
                <value>org.apache.catalina.authenticator.BasicAuthenticator</value>
             </entry>
             <entry>
