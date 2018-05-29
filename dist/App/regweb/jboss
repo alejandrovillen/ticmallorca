@@ -113,9 +113,6 @@ restart)
     $0 stop
     $0 start
     ;;
-status)
-    echo $?
-    ;;
 *)
     echo "usage: $0 (start|stop|restart|help)"
 esac
