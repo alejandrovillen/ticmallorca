@@ -48,16 +48,11 @@
 		"/usr/lib/jvm/jdk1.7.0_80/bin/javaws" 1
 		# Select java 1.7 version
 		sudo update-alternatives --config java
-	## RegWeb3 release 3.0.9
-		read -p "Press to install RegWeb3"
-		cd $PACKAGES/RegWeb
-		wget https://github.com/GovernIB/registre/releases/download/registre-3.0.9/release-regweb3-3.0.9.zip
-		unzip release-regweb3-3.0.9.zip
-		cp -r ./release-regweb3-3.0.9/* ./regweb
-		cp ./regweb/regweb3.ear $JBOSS/server/default/deployregweb
 	## JBoss 5.1.0 GA
 		read -p "Press to install JBoss 5.1.0 GA"
 		cp -r $TICPACK/JBoss/* $JBOSS
+		cd $JBOSS
+		ant deploy-jboss510
 	## JBoss Bug Fix
 		read -p "Press to install JBoss Fix"
 		cd $PACKAGES/JBossBug
@@ -68,6 +63,13 @@
 	## JBoss CXF
 		read -p "Press to install JBoss CXF"
 		cp -r $TICPACK/JBossCXF/* $JBOSS
+	## RegWeb3 release 3.0.9
+		read -p "Press to install RegWeb3"
+		cd $PACKAGES/RegWeb
+		wget https://github.com/GovernIB/registre/releases/download/registre-3.0.9/release-regweb3-3.0.9.zip
+		unzip release-regweb3-3.0.9.zip
+		cp -r ./release-regweb3-3.0.9/* ./regweb
+		cp ./regweb/regweb3.ear $JBOSS/server/default/deployregweb
 	## Color-JUnit
 		read -p "Press to install Color-JUnit"
 		cd $PACKAGES/ColorJUnit
